@@ -27,8 +27,8 @@ pub fn draw_north_right(renderer: &mut sdl2::render::Canvas<sdl2::video::Window>
         curve_center.x() as i16,
         curve_center.y() as i16,
         CURVE_RADIUS_RIGHT as i16,
-        180, // Start from the bottom
-        270, // End at the left
+        180, 
+        270, 
         sdl2::pixels::Color::RGB(255, 0, 0),
     ).unwrap();
 
@@ -53,8 +53,8 @@ pub fn draw_east_right(renderer: &mut sdl2::render::Canvas<sdl2::video::Window>)
         curve_center.x() as i16,
         curve_center.y() as i16,
         CURVE_RADIUS_RIGHT as i16,
-        270,
-        0,
+        270,   
+        0,       
         sdl2::pixels::Color::RGB(255, 0, 0),
     ).unwrap();
     renderer.draw_line(curve_end_point, end_point).unwrap();
@@ -77,8 +77,8 @@ pub fn draw_west_right(renderer: &mut sdl2::render::Canvas<sdl2::video::Window>)
         curve_center.x() as i16,
         curve_center.y() as i16,
         CURVE_RADIUS_RIGHT as i16,
-        90,  // Start from the top
-        180,    // End at the right
+        90,  
+        180,   
         sdl2::pixels::Color::RGB(255, 0, 0),
     ).unwrap();
     renderer.draw_line(curve_end_point, end_point).unwrap();
@@ -101,8 +101,8 @@ pub fn draw_south_right(renderer: &mut sdl2::render::Canvas<sdl2::video::Window>
         curve_center.x() as i16,
         curve_center.y() as i16,
         CURVE_RADIUS_RIGHT as i16,
-        0,    // Start from the right
-        90,   // End at the bottom
+        0,    
+        90,   
         sdl2::pixels::Color::RGB(255, 0, 0),
     ).unwrap();
     renderer.draw_line(curve_end_point, end_point).unwrap();
