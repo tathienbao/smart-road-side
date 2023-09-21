@@ -1,5 +1,6 @@
 pub use sdl2::gfx::primitives::DrawRenderer;
 pub use sdl2::rect::Point;
+use crate::direction::Direction;
 
 const WINDOW_WIDTH: i32 = 800;
 const WINDOW_HEIGHT: i32 = 600;
@@ -106,4 +107,21 @@ pub fn draw_south_right(renderer: &mut sdl2::render::Canvas<sdl2::video::Window>
         sdl2::pixels::Color::RGB(255, 0, 0),
     ).unwrap();
     renderer.draw_line(curve_end_point, end_point).unwrap();
+}
+
+
+// THIS PART IS FOR WAYPOINTS THAT HELP THE CARS FOLLOWING
+// Trong direction_renderer.rs
+
+pub fn get_waypoints_for_direction(direction: &Direction) -> Vec<Point> {
+    match direction {
+        Direction::NorthRight => vec![
+            Point::new(WINDOW_WIDTH / 2, WINDOW_HEIGHT),
+            Point::new(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + CURVE_RADIUS_RIGHT),
+            // Bạn có thể muốn thêm nhiều điểm hơn cho phần cong tại đây
+            Point::new(WINDOW_WIDTH, WINDOW_HEIGHT / 2),
+        ],
+        // ... và tương tự cho các hướng khác
+        _ => vec![], // trả về một danh sách rỗng cho những trường hợp chưa được xử lý
+    }
 }

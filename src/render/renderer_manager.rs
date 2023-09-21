@@ -4,8 +4,10 @@ use sdl2::event::Event;
 use sdl2::pixels::Color;
 use std::thread;
 use std::time::Duration;
+use crate::direction::Direction;
+use crate::Car;
 
-use super::intersection_renderer::{ // Import các hàm vẽ
+use super::direction_renderer::{ // Import draw fn
                                     draw_north_right,
                                     draw_west_right,
                                     draw_south_right,
@@ -37,7 +39,11 @@ impl RendererManager {
 
     pub fn run(&mut self) {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
+        let mut car = Car::new((100, 100), 2.0, Direction::NorthRight);
+
         'running: loop {
+            car.update();
+
             for event in event_pump.poll_iter() {
                 match event {
                     Event::Quit { .. } => break 'running,
@@ -53,6 +59,8 @@ impl RendererManager {
             draw_west_right(&mut self.canvas);
             draw_south_right(&mut self.canvas);
             draw_east_right(&mut self.canvas);
+
+            car.draw(&mut self.canvas);  // Draw the car after the intersections
 
             self.canvas.present();
 

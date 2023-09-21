@@ -1,3 +1,4 @@
 pub mod car;
-pub mod intersection;
-pub mod lane;
+
+pub use car::Car;
+pub mod direction;
