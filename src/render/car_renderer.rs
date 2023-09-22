@@ -1,22 +1,37 @@
+use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
-use sdl2::rect::Rect;
+use crate::object::Car;
 use crate::direction::Direction;
 
-const CAR_WIDTH: i32 = 20;
-const CAR_HEIGHT: i32 = 40;
-const CAR_COLOR: (u8, u8, u8) = (0, 0, 255);  // Blue
-
-pub fn draw_car(direction: Direction, canvas: &mut Canvas<Window>) {
-    canvas.set_draw_color((CAR_COLOR.0, CAR_COLOR.1, CAR_COLOR.2));
-
-    let rect = match direction {
-        Direction::North => Rect::new(400, 600, CAR_WIDTH as u32, CAR_HEIGHT as u32),
-        Direction::South => Rect::new(400, 0, CAR_WIDTH as u32, CAR_HEIGHT as u32),
-        Direction::East => Rect::new(0, 300, CAR_HEIGHT as u32, CAR_WIDTH as u32),
-        Direction::West => Rect::new(800, 300, CAR_HEIGHT as u32, CAR_WIDTH as u32),
-        _ => panic!("Unexpected direction"),
+pub fn draw_car(car: &mut Car, canvas: &mut Canvas<Window>) {
+    canvas.set_draw_color(Color::RGB(255, 0, 0));
+    match car.direction {
+        Direction::North | Direction::South => {
+            canvas.fill_rect(sdl2::rect::Rect::new(car.x, car.y, 20, 40)).unwrap();
+        }
+        Direction::East | Direction::West => {
+            canvas.fill_rect(sdl2::rect::Rect::new(car.x, car.y, 40, 20)).unwrap();
+        }
+        _ => {}
     };
+}
 
-    canvas.fill_rect(rect).unwrap();
+// This function will allow the car to move based on its direction
+pub fn update_car_position(car: &mut Car) {
+    match car.direction {
+        Direction::North => {
+            car.y -= 5;
+        }
+        Direction::South => {
+            car.y += 5;
+        }
+        Direction::East => {
+            car.x += 5;
+        }
+        Direction::West => {
+            car.x -= 5;
+        }
+        _ => {}
+    }
 }
