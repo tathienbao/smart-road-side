@@ -3,4 +3,8 @@ pub enum Direction {
     EastRight,
     WestRight,
     SouthRight,
+    North,
+    South,
+    West,
+    East,
 }

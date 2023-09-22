@@ -1,4 +1,4 @@
 pub mod car;
+pub mod direction;
 
 pub use car::Car;
-pub mod direction;
