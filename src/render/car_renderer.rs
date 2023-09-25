@@ -1,36 +1,41 @@
-use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
-use crate::object::Car;
+use crate::car::Car;
 use crate::direction::Direction;
+use sdl2::image::{LoadTexture, INIT_PNG};
+use sdl2::rect::Rect;
+use crate::Car;
 
 pub fn draw_car(car: &mut Car, canvas: &mut Canvas<Window>) {
-    canvas.set_draw_color(Color::RGB(255, 0, 0));
-    match car.direction {
-        Direction::North | Direction::South => {
-            canvas.fill_rect(sdl2::rect::Rect::new(car.x, car.y, 20, 40)).unwrap();
-        }
-        Direction::East | Direction::West => {
-            canvas.fill_rect(sdl2::rect::Rect::new(car.x, car.y, 40, 20)).unwrap();
-        }
-        _ => {}
+    canvas.set_draw_color(sdl2::pixels::Color::RGB(255, 0, 0));
+    let texture_creator = canvas.texture_creator();
+    let texture = texture_creator.load_texture("assets/car.png").unwrap();
+    let src = Rect::new(0, 0, 64, 64);
+
+    let dst = match car.direction {
+        Direction::North => Rect::new(car.x, car.y, 64, 64),
+        Direction::South => Rect::new(car.x, car.y, 64, 64),
+        Direction::East => Rect::new(car.x, car.y, 64, 64),
+        Direction::West => Rect::new(car.x, car.y, 64, 64),
+        _ => Rect::new(car.x, car.y, 64, 64),
     };
+
+    canvas.copy(&texture, src, dst).expect("Failed to copy texture");
 }
 
-// This function will allow the car to move based on its direction
 pub fn update_car_position(car: &mut Car) {
     match car.direction {
         Direction::North => {
-            car.y -= 5;
+            car.y -= 2;
         }
         Direction::South => {
-            car.y += 5;
+            car.y += 2;
         }
         Direction::East => {
-            car.x += 5;
+            car.x += 2;
         }
         Direction::West => {
-            car.x -= 5;
+            car.x -= 2;
         }
         _ => {}
     }
