@@ -6,6 +6,6 @@ edition = "2021"
 
 [dependencies]
 rand = { version = "0.8.5", features = [] }
-sdl2 = { version = "0.35.2", default-features = false, features = ["gfx","image"] }
+piston_window = "0.130.0"
 
 

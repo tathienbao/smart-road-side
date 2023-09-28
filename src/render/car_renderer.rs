@@ -1,22 +1,24 @@
+use piston_window::{Texture, G2dTexture, TextureSettings, Flip};
 use std::fs;
-use sdl2::render::{Canvas, Texture, TextureCreator};
-use sdl2::image::LoadTexture;
-use sdl2::video::Window;
-use sdl2::rect::Rect;
+use image::ImageFormat;
+use std::path::Path;
 use crate::object::car::Car;
 use crate::object::direction::Direction;
 use rand::Rng;
 
-pub fn load_all_textures(
-    texture_creator: &TextureCreator<sdl2::video::WindowContext>,
-) -> Vec<Texture> {
+pub fn load_all_textures(factory: &mut G2dTexture) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
     let paths = fs::read_dir("./assets").unwrap();
 
     for path in paths {
-        let path_str = path.unwrap().path().display().to_string();
-        if path_str.ends_with(".png") {
-            let texture = texture_creator.load_texture(path_str).unwrap();
+        let path_str = path.unwrap().path();
+        if path_str.extension().unwrap_or_default() == "png" {
+            let texture: G2dTexture = Texture::from_path(
+                factory,
+                &path_str,
+                Flip::None,
+                &TextureSettings::new(),
+            ).unwrap();
             textures.push(texture);
         }
     }
@@ -24,7 +26,7 @@ pub fn load_all_textures(
     textures
 }
 
-pub fn choose_random_texture<'a>(textures: &'a Vec<Texture<'a>>) -> &'a Texture<'a> {
+pub fn choose_random_texture<'a>(textures: &'a [G2dTexture]) -> &'a G2dTexture {
     let mut rng = rand::thread_rng();
     let index = rng.gen_range(0..textures.len());
     &textures[index]
@@ -32,21 +34,22 @@ pub fn choose_random_texture<'a>(textures: &'a Vec<Texture<'a>>) -> &'a Texture<
 
 pub fn draw_car(
     car: &Car,
-    canvas: &mut Canvas<Window>,
-    all_textures: &Vec<Texture>,
+    textures: &[G2dTexture],
+    c: piston_window::Context,
+    g: &mut piston_window::G2d,
 ) {
-    let texture = choose_random_texture(all_textures);
-    let src = Rect::new(0, 0, 75, 130);
+    let texture = choose_random_texture(textures);
+    let transform = c.transform.trans(car.x as f64, car.y as f64);
 
-    let dst = match car.direction {
-        Direction::North => Rect::new(car.x, car.y, 75, 130),
-        Direction::South => Rect::new(car.x, car.y, 75, 130),
-        Direction::East => Rect::new(car.x, car.y, 130, 75),
-        Direction::West => Rect::new(car.x, car.y, 130, 75),
-        _ => Rect::new(car.x, car.y, 75, 130),
+    let rotated_transform = match car.direction {
+        Direction::North => transform.rot_rad(0.0),  // No rotation
+        Direction::South => transform.rot_rad(std::f64::consts::PI),  // 180 degrees
+        Direction::East => transform.rot_rad(-std::f64::consts::PI / 2.0),  // 90 degrees counter-clockwise
+        Direction::West => transform.rot_rad(std::f64::consts::PI / 2.0),  // 90 degrees clockwise
+        _ => transform.rot_rad(0.0),  // Default to no rotation
     };
 
-    canvas.copy(&texture, src, dst).expect("Failed to copy texture");
+    piston_window::image(texture, rotated_transform, g);
 }
 
 pub fn update_car_position(car: &mut Car) {
