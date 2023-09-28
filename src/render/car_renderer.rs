@@ -1,23 +1,21 @@
-use piston_window::{Texture, G2dTexture, TextureSettings, Flip};
+use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow};
 use std::fs;
-use image::ImageFormat;
-use std::path::Path;
 use crate::object::car::Car;
 use crate::object::direction::Direction;
 use rand::Rng;
 
-pub fn load_all_textures(factory: &mut G2dTexture) -> Vec<G2dTexture> {
+pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
-    let paths = fs::read_dir("./assets").unwrap();
+    let paths = fs::read_dir("./assets").expect("CAN'T ENTRY ASSETS FOLDER");
 
     for path in paths {
-        let path_str = path.unwrap().path();
+        let path_str = path.expect("CAN'T BUFF").path();
         if path_str.extension().unwrap_or_default() == "png" {
-            let texture: G2dTexture = Texture::from_path(
-                factory,
-                &path_str,
-                Flip::None,
-                &TextureSettings::new(),
+            let img = image::open(&path_str).unwrap().to_rgba8();
+            let texture = Texture::from_image(
+                &mut window.create_texture_context(),
+                &img,
+                &TextureSettings::new()
             ).unwrap();
             textures.push(texture);
         }
@@ -26,9 +24,9 @@ pub fn load_all_textures(factory: &mut G2dTexture) -> Vec<G2dTexture> {
     textures
 }
 
-pub fn choose_random_texture<'a>(textures: &'a [G2dTexture]) -> &'a G2dTexture {
+pub fn choose_random_texture(textures: & [G2dTexture]) -> &G2dTexture {
     let mut rng = rand::thread_rng();
-    let index = rng.gen_range(0..textures.len());
+    let index = rng.gen_range(1..textures.len());
     &textures[index]
 }
 
@@ -39,6 +37,7 @@ pub fn draw_car(
     g: &mut piston_window::G2d,
 ) {
     let texture = choose_random_texture(textures);
+
     let transform = c.transform.trans(car.x as f64, car.y as f64);
 
     let rotated_transform = match car.direction {

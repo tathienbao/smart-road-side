@@ -13,7 +13,6 @@ pub mod render {
 
 pub mod input;
 
-pub use sdl2::video::Window;
 pub use crate::render::direction_renderer;
 pub use object::car::Car;
 pub use object::car::CARS;

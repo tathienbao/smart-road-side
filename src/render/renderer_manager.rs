@@ -1,8 +1,6 @@
 use piston_window::*;
-use crate::direction_renderer::{draw_east_right, draw_north_right, draw_south_right, draw_west_right};
+use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_right, draw_west_right, draw_north, draw_south, draw_east, draw_west, draw_north_left, draw_south_left, draw_east_left, draw_west_left};
 use crate::object::car::Car;
-use crate::object::direction::Direction;
-use crate::render::car_renderer;
 use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures};
 use crate::keyboard::handle_keyboard_event;
 
@@ -14,13 +12,12 @@ pub struct RendererManager {
 
 impl RendererManager {
     pub fn new() -> RendererManager {
-        let window: PistonWindow = WindowSettings::new("Piston Demo", [800, 600])
+        let mut window: PistonWindow = WindowSettings::new("Piston Smart Road", [1600, 1200])
             .exit_on_esc(true)
             .build()
             .unwrap();
 
-        let mut factory = window.factory.clone();
-        let textures = load_all_textures(&mut factory);
+        let textures = load_all_textures(&mut window);
 
         Self {
             window,
@@ -34,11 +31,19 @@ impl RendererManager {
             self.window.draw_2d(&event, |c, g, _| {
                 clear([0.0, 0.0, 0.0, 1.0], g);
 
-            // Draw the leading lines.
-            draw_north_right(&mut self.canvas);
-            draw_west_right(&mut self.canvas);
-            draw_south_right(&mut self.canvas);
-            draw_east_right(&mut self.canvas);
+                //draw leading line
+                draw_north_right(c, g);
+                draw_east_right(c, g);
+                draw_south_right(c, g);
+                draw_west_right(c, g);
+                draw_north(c, g);
+                draw_south(c, g);
+                draw_east(c, g);
+                draw_west(c, g);
+                draw_north_left(c, g);
+                draw_south_left(c, g);
+                draw_east_left(c, g);
+                draw_west_left(c, g);
 
                 for car in &mut self.cars {
                     draw_car(car, &self.textures, c, g);
@@ -47,7 +52,7 @@ impl RendererManager {
 
             if let Some(Button::Keyboard(key)) = event.press_args() {
                 if let Some(direction) = handle_keyboard_event(key) {
-                    let mut car = Car::new(0, 0, direction);
+                    let car = Car::new(0, 0, direction);
                     self.cars.push(car);
                 }
             }
