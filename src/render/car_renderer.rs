@@ -1,23 +1,49 @@
-use sdl2::render::Canvas;
+use std::fs;
+use sdl2::render::{Canvas, Texture, TextureCreator};
+use sdl2::image::LoadTexture;
 use sdl2::video::Window;
-use crate::car::Car;
-use crate::direction::Direction;
-use sdl2::image::{LoadTexture, INIT_PNG};
 use sdl2::rect::Rect;
-use crate::Car;
+use crate::object::car::Car;
+use crate::object::direction::Direction;
+use rand::Rng;
 
-pub fn draw_car(car: &mut Car, canvas: &mut Canvas<Window>) {
-    canvas.set_draw_color(sdl2::pixels::Color::RGB(255, 0, 0));
-    let texture_creator = canvas.texture_creator();
-    let texture = texture_creator.load_texture("assets/car.png").unwrap();
-    let src = Rect::new(0, 0, 64, 64);
+pub fn load_all_textures(
+    texture_creator: &TextureCreator<sdl2::video::WindowContext>,
+) -> Vec<Texture> {
+    let mut textures = Vec::new();
+    let paths = fs::read_dir("./assets").unwrap();
+
+    for path in paths {
+        let path_str = path.unwrap().path().display().to_string();
+        if path_str.ends_with(".png") {
+            let texture = texture_creator.load_texture(path_str).unwrap();
+            textures.push(texture);
+        }
+    }
+
+    textures
+}
+
+pub fn choose_random_texture<'a>(textures: &'a Vec<Texture<'a>>) -> &'a Texture<'a> {
+    let mut rng = rand::thread_rng();
+    let index = rng.gen_range(0..textures.len());
+    &textures[index]
+}
+
+pub fn draw_car(
+    car: &Car,
+    canvas: &mut Canvas<Window>,
+    all_textures: &Vec<Texture>,
+) {
+    let texture = choose_random_texture(all_textures);
+    let src = Rect::new(0, 0, 75, 130);
 
     let dst = match car.direction {
-        Direction::North => Rect::new(car.x, car.y, 64, 64),
-        Direction::South => Rect::new(car.x, car.y, 64, 64),
-        Direction::East => Rect::new(car.x, car.y, 64, 64),
-        Direction::West => Rect::new(car.x, car.y, 64, 64),
-        _ => Rect::new(car.x, car.y, 64, 64),
+        Direction::North => Rect::new(car.x, car.y, 75, 130),
+        Direction::South => Rect::new(car.x, car.y, 75, 130),
+        Direction::East => Rect::new(car.x, car.y, 130, 75),
+        Direction::West => Rect::new(car.x, car.y, 130, 75),
+        _ => Rect::new(car.x, car.y, 75, 130),
     };
 
     canvas.copy(&texture, src, dst).expect("Failed to copy texture");

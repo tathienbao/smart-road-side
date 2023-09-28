@@ -1,6 +1,5 @@
 pub use sdl2::gfx::primitives::DrawRenderer;
 pub use sdl2::rect::Point;
-use crate::direction::Direction;
 
 const WINDOW_WIDTH: i32 = 800;
 const WINDOW_HEIGHT: i32 = 600;
