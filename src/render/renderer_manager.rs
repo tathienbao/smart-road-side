@@ -1,10 +1,11 @@
 use std::collections::VecDeque;
+use std::time::{Duration, Instant};
 use piston_window::*;
 use rand::Rng;
 use crate::direction::Direction;
 use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_right, draw_west_right, draw_north, draw_south, draw_east, draw_west, draw_north_left, draw_south_left, draw_east_left, draw_west_left};
 use crate::object::car::Car;
-use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, draw_hit_box, update_hit_box};
+use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box};
 use crate::keyboard::handle_keyboard_event;
 use crate::logic::logic::{draw_intersection, draw_rectangle_edges};
 
@@ -17,6 +18,7 @@ pub struct RendererManager {
     pub cars: VecDeque<Car>,
     pub textures: Vec<G2dTexture>,
     pub show_hit_box_and_whisker: bool,
+    pub last_car_spawn_time: Instant,
 }
 
 impl RendererManager {
@@ -36,6 +38,7 @@ impl RendererManager {
             cars: VecDeque::new(),
             textures,
             show_hit_box_and_whisker: false,
+            last_car_spawn_time: Instant::now(),
         }
     }
 
@@ -44,26 +47,31 @@ impl RendererManager {
 
             // Handle all keyboard events
             if let Some(Button::Keyboard(key)) = event.press_args() {
+                let now = Instant::now();
+
                 // Toggle hit box and whisker
                 if key == Key::L {
                     self.show_hit_box_and_whisker = !self.show_hit_box_and_whisker;
                 }
 
-                // Add a new car
-                if let Some(direction) = handle_keyboard_event(key) {
-                    let texture_id = rand::thread_rng().gen_range(0..self.textures.len());
-                    let id = self.cars.len();
+                if now.duration_since(self.last_car_spawn_time) >= Duration::from_secs(1) {
+                    // Add a new car
+                    if let Some(direction) = handle_keyboard_event(key) {
+                        let texture_id = rand::thread_rng().gen_range(0..self.textures.len());
+                        let id = self.cars.len();
 
-                    let (_init_x, _init_y) = match direction {
-                        Direction::North => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH, WINDOW_HEIGHT),
-                        Direction::South => (WINDOW_WIDTH / 2 - 90 - HALF_CAR_WIDTH, 0),
-                        Direction::East => (0, WINDOW_HEIGHT / 2 + 90 + HALF_CAR_WIDTH),
-                        Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 90 - HALF_CAR_WIDTH),
-                        _ => (0, 0),
-                    };
+                        let (_init_x, _init_y) = match direction {
+                            Direction::East => (0, WINDOW_HEIGHT / 2 + 90 + HALF_CAR_WIDTH),
+                            Direction::North => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH, WINDOW_HEIGHT),
+                            Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 90 - HALF_CAR_WIDTH),
+                            Direction::South => (WINDOW_WIDTH / 2 - 90 - HALF_CAR_WIDTH, 0),
+                            _ => (0, 0),
+                        };
 
-                    let car = Car::new(id ,_init_x, _init_y, direction, texture_id);
-                    self.cars.push_back(car);
+                        let car = Car::new(id ,_init_x, _init_y, direction, texture_id);
+                        self.cars.push_back(car);
+                        self.last_car_spawn_time = now;
+                    }
                 }
             }
 
@@ -71,9 +79,10 @@ impl RendererManager {
             self.window.draw_2d(&event, |c, g, _| {
                 clear([0.0, 0.0, 0.0, 1.0], g);
 
+                //draw intersection zone 600x600
                 draw_intersection(c, g);
 
-                //draw leading lines
+                //draw direction leading lines
                 draw_north_right(c, g);
                 draw_east_right(c, g);
                 draw_south_right(c, g);
@@ -92,7 +101,8 @@ impl RendererManager {
                     // Draw hit box and whisker if enabled
                     if self.show_hit_box_and_whisker {
                         draw_whisker(car, c, g);
-                        // draw_hit_box(car, c, g); // This is fake skin of hit box, not the real position on display
+                        // draw_hit_box(car, c, g); // This is fake skin of hit box due to library rendering.
+                        // Real hit box is here
                         draw_rectangle_edges(
                             (car.hit_box.x as f32, car.hit_box.y as f32, car.hit_box.width as f32, car.hit_box.height as f32),
                             c,
