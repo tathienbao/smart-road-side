@@ -78,7 +78,34 @@ fn line_line_intersection(a1: (f32, f32), a2: (f32, f32), b1: (f32, f32), b2: (f
     false
 }
 
+// Draw to check precision of the cut rectangular
+pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d) {
+    let (x, y, w, h) = rect;
 
+    // Create a vector of the rectangle's vertices
+    let vertices = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
+
+    let yellow = [1.0, 1.0, 0.0, 1.0];
+
+    // Draw a line along the edges of the rectangle
+    for i in 0..4 {
+        let j = (i + 1) % 4;
+        line(
+            yellow,
+            1.0, // Thickness
+            [vertices[i].0 as f64, vertices[i].1 as f64, vertices[j].0 as f64, vertices[j].1 as f64],
+            c.transform,
+            g,
+        );
+    }
+}
+
+
+/// THIS SECTION IS FOR PRIORITY QUEUE LOGIC
+/// WE HAVE 4 FUNCTIONS.
+///
+
+// For cars at slow speed
 pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
     let current_whisker_start = (current_car.x as f32, current_car.y as f32);
@@ -105,27 +132,25 @@ pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     false
 }
 
-// Draw to check precision of the cut rectangular
-pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d) {
-    let (x, y, w, h) = rect;
-
-    // Create a vector of the rectangle's vertices
-    let vertices = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
-
-    let yellow = [1.0, 1.0, 0.0, 1.0];
-
-    // Draw a line along the edges of the rectangle
-    for i in 0..4 {
-        let j = (i + 1) % 4;
-        line(
-            yellow,
-            1.0, // Thickness
-            [vertices[i].0 as f64, vertices[i].1 as f64, vertices[j].0 as f64, vertices[j].1 as f64],
-            c.transform,
-            g,
-        );
-    }
+// For cars at high speed
+pub fn slow_down(car: &mut Car) {
+    // Reduce the speed of the car to a safer level
 }
+
+// For cars that enter the intersection
+pub fn update_intersection_status(cars: &mut VecDeque<Car>, insiders: &mut VecDeque<usize>) {
+    // Check if a car has entered the intersection
+    // If yes, mark it as `is_inside` and add it to `Insiders`
+}
+
+// Check conflict by directions
+pub fn check_conflict_by_direction(insiders: &VecDeque<usize>, cars: &VecDeque<Car>) -> bool {
+    // Check for conflicts in direction among the cars in `Insiders`
+}
+
+
+
+
 
 
 
