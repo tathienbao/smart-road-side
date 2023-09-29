@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 use crate::Car;
-use piston_window::{rectangle, Context, G2d};
+use piston_window::{rectangle, Context, G2d, line};
 
 const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
@@ -33,9 +33,11 @@ pub fn draw_intersection(c: Context, g: &mut G2d) {
     );
 }
 
+// Define the hit box borders for a car
 fn line_intersects_rect(line_p1: (f32, f32), line_p2: (f32, f32), rect: (f32, f32, f32, f32)) -> bool {
     // Rectangle edges
     let (rect_x, rect_y, rect_w, rect_h) = rect;
+
     let edges = [
         ((rect_x, rect_y), (rect_x + rect_w, rect_y)), // Top
         ((rect_x + rect_w, rect_y), (rect_x + rect_w, rect_y + rect_h)), // Right
@@ -102,6 +104,29 @@ pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
 
     false
 }
+
+// Draw to check precision of the cut rectangular
+pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d) {
+    let (x, y, w, h) = rect;
+
+    // Create a vector of the rectangle's vertices
+    let vertices = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
+
+    let yellow = [1.0, 1.0, 0.0, 1.0];
+
+    // Draw a line along the edges of the rectangle
+    for i in 0..4 {
+        let j = (i + 1) % 4;
+        line(
+            yellow,
+            1.0, // Thickness
+            [vertices[i].0 as f64, vertices[i].1 as f64, vertices[j].0 as f64, vertices[j].1 as f64],
+            c.transform,
+            g,
+        );
+    }
+}
+
 
 
 
