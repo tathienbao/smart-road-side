@@ -43,17 +43,20 @@ pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
             continue;
         }
 
-        let other_whisker = &other_car.whisker;
+        let other_hit_box = &other_car.hit_box;
 
-        // Check if the whiskers are close to each other
-        if (current_whisker.x - other_whisker.x).abs() < 10 && (current_whisker.y - other_whisker.y).abs() < 10 {
-            // If the other car is closer to the intersection, stop
-            if current_car_id > other_car_id {
-                return true;
-            }
+        // Check if the whisker's tip intersects with the other car's hit box
+        if current_whisker.x >= other_hit_box.x as i32
+            && current_whisker.x <= (other_hit_box.x + other_hit_box.width) as i32
+            && current_whisker.y >= other_hit_box.y as i32
+            && current_whisker.y <= (other_hit_box.y + other_hit_box.height) as i32
+        {
+            return true;
         }
     }
-
     false
 }
+
+
+
 

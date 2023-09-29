@@ -1,9 +1,11 @@
 use std::collections::VecDeque;
-use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow, line, Context, G2d};
+use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow, line, Context, G2d, rectangle};
 use std::fs;
 use crate::object::car::{Car, CarSpeed};
 use crate::object::direction::Direction;
 use crate::logic::logic::{in_intersection, should_stop};
+
+const CAR_WIDTH: f64 = 37.0;
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
@@ -86,6 +88,7 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
     }
 }
 
+
 pub fn draw_whisker(
     car: &Car,
     c: Context,
@@ -98,10 +101,15 @@ pub fn draw_whisker(
 
     let blue: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
-    // draw a line from the car to the whisker
-    line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g);
+    // A whisker start from the car's position and ends at the whisker's position
+    match car.direction {
+        Direction::North => line(blue, 1.0, [car_x - CAR_WIDTH/2.0, car_y, whisker_x - CAR_WIDTH/2.0, whisker_y], c.transform, g),
+        Direction::South => line(blue, 1.0, [car_x + CAR_WIDTH/2.0, car_y, whisker_x + CAR_WIDTH/2.0, whisker_y], c.transform, g),
+        Direction::East => line(blue, 1.0, [car_x, car_y - CAR_WIDTH/2.0, whisker_x, whisker_y - CAR_WIDTH/2.0], c.transform, g),
+        Direction::West => line(blue, 1.0, [car_x, car_y + CAR_WIDTH/2.0, whisker_x, whisker_y + CAR_WIDTH/2.0], c.transform, g),
+        _ => {}
+    }
 }
-
 
 pub fn update_whisker(car: &mut Car) {
     // Calculate dx and dy between the current position and the previous position
@@ -117,3 +125,50 @@ pub fn update_whisker(car: &mut Car) {
     car.whisker.y = car.y + dy * 50;
 }
 
+
+pub fn draw_hit_box(car: &Car, c: Context, g: &mut G2d) {
+    let red: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
+
+    match car.direction{
+        Direction::North => {
+            rectangle(
+                red,
+                [car.hit_box.x - CAR_WIDTH, car.hit_box.y - CAR_WIDTH, car.hit_box.width, car.hit_box.height],
+                c.transform,
+                g,
+            );
+        }
+        Direction::South => {
+            rectangle(
+                red,
+                [car.hit_box.x, car.hit_box.y, car.hit_box.width, car.hit_box.height],
+                c.transform,
+                g,
+            );
+        }
+        Direction::East => {
+            rectangle(
+                red,
+                [car.hit_box.x, car.hit_box.y - CAR_WIDTH, car.hit_box.width, car.hit_box.height],
+                c.transform,
+                g,
+            );
+        }
+        Direction::West => {
+            rectangle(
+                red,
+                [car.hit_box.x - CAR_WIDTH, car.hit_box.y, car.hit_box.width, car.hit_box.height],
+                c.transform,
+                g,
+            );
+        }
+    _ => {}
+    }
+}
+
+pub fn update_hit_box(car: &mut Car) {
+    car.hit_box.x = car.x as f64;
+    car.hit_box.y = car.y as f64;
+    car.hit_box.width = car.width as f64;
+    car.hit_box.height = car.height as f64;
+}
