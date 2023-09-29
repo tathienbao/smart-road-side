@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use crate::Car;
 use piston_window::{rectangle, Context, G2d};
 
@@ -31,3 +32,28 @@ pub fn draw_intersection(c: Context, g: &mut G2d) {
         g,
     );
 }
+
+pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
+    let current_car = &cars[current_car_id];
+    let current_whisker = &current_car.whisker;
+
+    for (other_car_id, other_car) in cars.iter().enumerate() {
+        // Don't compare the current car with itself
+        if current_car_id == other_car_id {
+            continue;
+        }
+
+        let other_whisker = &other_car.whisker;
+
+        // Check if the whiskers are close to each other
+        if (current_whisker.x - other_whisker.x).abs() < 10 && (current_whisker.y - other_whisker.y).abs() < 10 {
+            // If the other car is closer to the intersection, stop
+            if current_car_id > other_car_id {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+

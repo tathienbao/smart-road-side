@@ -1,9 +1,10 @@
+use std::collections::VecDeque;
 use piston_window::*;
 use rand::Rng;
 use crate::direction::Direction;
 use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_right, draw_west_right, draw_north, draw_south, draw_east, draw_west, draw_north_left, draw_south_left, draw_east_left, draw_west_left};
 use crate::object::car::Car;
-use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures};
+use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker};
 use crate::keyboard::handle_keyboard_event;
 use crate::logic::logic::draw_intersection;
 
@@ -13,7 +14,7 @@ const HALF_CAR_WIDTH: i32 = 18;
 
 pub struct RendererManager {
     pub window: PistonWindow,
-    pub cars: Vec<Car>,
+    pub cars: VecDeque<Car>,
     pub textures: Vec<G2dTexture>,
 }
 
@@ -31,7 +32,7 @@ impl RendererManager {
 
         Self {
             window,
-            cars: Vec::new(),
+            cars: VecDeque::new(),
             textures,
         }
     }
@@ -59,12 +60,14 @@ impl RendererManager {
 
                 for car in &mut self.cars {
                     draw_car(car, &self.textures, c, g);
+                    draw_whisker(car, c, g);
                 }
             });
 
             if let Some(Button::Keyboard(key)) = event.press_args() {
                 if let Some(direction) = handle_keyboard_event(key) {
                     let texture_id = rand::thread_rng().gen_range(0..self.textures.len());
+                    let id = self.cars.len();
 
                     let (_init_x, _init_y) = match direction {
                         Direction::North => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH, WINDOW_HEIGHT),
@@ -74,14 +77,26 @@ impl RendererManager {
                         _ => (0, 0),
                     };
 
-                    let car = Car::new(_init_x, _init_y, direction, texture_id);
-                    self.cars.push(car);
+                    let car = Car::new(id ,_init_x, _init_y, direction, texture_id);
+                    self.cars.push_back(car);
                 }
             }
 
-            // Update all cars' positions to make them move
+
+            // Tạo một Vec để lưu các index cần cập nhật
+            let mut indices_to_update: Vec<usize> = Vec::new();
+            for (idx, _car) in self.cars.iter().enumerate() {
+                indices_to_update.push(idx);
+            }
+
+            // Cập nhật các Car dựa trên các index đã lưu
+            for idx in indices_to_update {
+                update_car_position(&mut self.cars, idx);
+            }
+
+            // Update all cars' whiskers
             for car in &mut self.cars {
-                update_car_position(car);
+                update_whisker(car);
             }
         }
     }

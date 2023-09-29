@@ -1,8 +1,9 @@
-use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow};
+use std::collections::VecDeque;
+use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow, line, Context, G2d};
 use std::fs;
 use crate::object::car::{Car, CarSpeed};
 use crate::object::direction::Direction;
-use crate::logic::logic::in_intersection;
+use crate::logic::logic::{in_intersection, should_stop};
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
@@ -44,12 +45,23 @@ pub fn draw_car(
         _ => transform.rot_rad(0.0),  // Default to no rotation
     };
 
-
+    // Draw the car
     piston_window::image(texture, rotated_transform.scale(0.5, 0.5), g);
 }
 
-pub fn update_car_position(car: &mut Car) {
-    if in_intersection(car) {
+pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
+    let car = &mut cars[current_car_id];
+
+    car.prev_x = car.x;
+    car.prev_y = car.y;
+
+    // Check to avoid borrowing error
+    let should_stop_flag = should_stop(cars, current_car_id);
+
+    let car = &mut cars[current_car_id];
+    if should_stop_flag {
+        car.speed = CarSpeed::Stop;
+    } else if in_intersection(car) {
         car.speed = CarSpeed::Slow;
     } else {
         car.speed = CarSpeed::Default;
@@ -73,3 +85,35 @@ pub fn update_car_position(car: &mut Car) {
         _ => {}
     }
 }
+
+pub fn draw_whisker(
+    car: &Car,
+    c: Context,
+    g: &mut G2d,
+) {
+    let car_x = car.x as f64;
+    let car_y = car.y as f64;
+    let whisker_x = car.whisker.x as f64;
+    let whisker_y = car.whisker.y as f64;
+
+    let blue: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
+
+    // draw a line from the car to the whisker
+    line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g);
+}
+
+
+pub fn update_whisker(car: &mut Car) {
+    // Calculate dx and dy between the current position and the previous position
+    let dx = car.x - car.prev_x;
+    let dy = car.y - car.prev_y;
+
+    // Update the previous position
+    car.prev_x = car.x;
+    car.prev_y = car.y;
+
+    // Update the whisker's position based on dx and dy
+    car.whisker.x = car.x + dx * 50;  // Use 50 as the length of the whisker
+    car.whisker.y = car.y + dy * 50;
+}
+
