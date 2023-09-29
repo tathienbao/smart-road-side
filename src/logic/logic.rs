@@ -33,27 +33,73 @@ pub fn draw_intersection(c: Context, g: &mut G2d) {
     );
 }
 
+fn line_intersects_rect(line_p1: (f32, f32), line_p2: (f32, f32), rect: (f32, f32, f32, f32)) -> bool {
+    // Rectangle edges
+    let (rect_x, rect_y, rect_w, rect_h) = rect;
+    let edges = [
+        ((rect_x, rect_y), (rect_x + rect_w, rect_y)), // Top
+        ((rect_x + rect_w, rect_y), (rect_x + rect_w, rect_y + rect_h)), // Right
+        ((rect_x, rect_y + rect_h), (rect_x + rect_w, rect_y + rect_h)), // Bottom
+        ((rect_x, rect_y), (rect_x, rect_y + rect_h)), // Left
+    ];
+
+    // Check each edge
+    for &(a, b) in &edges {
+        if line_line_intersection(line_p1, line_p2, a, b) {
+            return true;
+        }
+    }
+
+    false
+}
+
+fn line_line_intersection(a1: (f32, f32), a2: (f32, f32), b1: (f32, f32), b2: (f32, f32)) -> bool {
+    let (x1, y1) = a1;
+    let (x2, y2) = a2;
+    let (x3, y3) = b1;
+    let (x4, y4) = b2;
+
+    let denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+    // Lines are parallel or too close to parallel
+    if denominator.abs() < 1e-10 {
+        return false;
+    }
+
+    let t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator;
+    let u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denominator;
+
+    if t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0 {
+        return true;
+    }
+
+    false
+}
+
+
 pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
-    let current_whisker = &current_car.whisker;
+    let current_whisker_start = (current_car.x as f32, current_car.y as f32);
+    let current_whisker_end = (current_car.whisker.x as f32, current_car.whisker.y as f32);
 
     for (other_car_id, other_car) in cars.iter().enumerate() {
-        // Don't compare the current car with itself
         if current_car_id == other_car_id {
             continue;
         }
 
         let other_hit_box = &other_car.hit_box;
+        let rect = (
+            other_hit_box.x as f32,
+            other_hit_box.y as f32,
+            other_hit_box.width as f32,
+            other_hit_box.height as f32,
+        );
 
-        // Check if the whisker's tip intersects with the other car's hit box
-        if current_whisker.x >= other_hit_box.x as i32
-            && current_whisker.x <= (other_hit_box.x + other_hit_box.width) as i32
-            && current_whisker.y >= other_hit_box.y as i32
-            && current_whisker.y <= (other_hit_box.y + other_hit_box.height) as i32
-        {
+        if line_intersects_rect(current_whisker_start, current_whisker_end, rect) {
             return true;
         }
     }
+
     false
 }
 

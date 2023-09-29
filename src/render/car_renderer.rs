@@ -63,6 +63,7 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
     let car = &mut cars[current_car_id];
     if should_stop_flag {
         car.speed = CarSpeed::Stop;
+        car.stop_frames = 60;
     } else if in_intersection(car) {
         car.speed = CarSpeed::Slow;
     } else {

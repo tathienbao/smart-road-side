@@ -104,9 +104,14 @@ impl RendererManager {
                 indices_to_update.push(idx);
             }
 
-            // Update cars based on index
+            // Update cars based on index and stop_frames
             for idx in indices_to_update {
-                update_car_position(&mut self.cars, idx);
+                let car = &mut self.cars[idx];
+                if car.stop_frames > 0 {
+                    car.stop_frames -= 1;
+                } else {
+                    update_car_position(&mut self.cars, idx);
+                }
             }
 
             // Update and draw hit boxes and whiskers
