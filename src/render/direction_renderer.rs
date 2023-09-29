@@ -6,7 +6,6 @@ const WINDOW_HEIGHT: f64 = 1200.0;
 const CURVE_RADIUS_RIGHT: f64 = 50.0;
 const CURVE_RADIUS_LEFT: f64 = 120.0;
 
-const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0]; // Red color
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0]; // White color
 
 pub fn draw_north_right(c: Context, g: &mut G2d) {
