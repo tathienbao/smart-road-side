@@ -5,13 +5,14 @@ pub struct Car {
     pub x: i32,
     pub y: i32,
     pub direction: Direction,
+    pub texture_id: usize,
 }
 
 // VecDeque toàn cục để lưu trữ tất cả các xe
 pub static mut CARS: VecDeque<Car> = VecDeque::new();
 
 impl Car {
-    pub fn new(x: i32, y: i32, direction: Direction) -> Self {
-        Car { x, y, direction }
+    pub fn new(x: i32, y: i32, direction: Direction, texture_id: usize) -> Self {
+        Car { x, y, direction, texture_id }
     }
 }

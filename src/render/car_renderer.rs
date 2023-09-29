@@ -4,6 +4,11 @@ use crate::object::car::Car;
 use crate::object::direction::Direction;
 use rand::Rng;
 
+const WINDOW_WIDTH: f64 = 1600.0;
+const WINDOW_HEIGHT: f64 = 1200.0;
+
+const HALF_CAR_WIDTH: f64 = 17.0;
+
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
     let paths = fs::read_dir("./assets").expect("CAN'T ENTRY ASSETS FOLDER");
@@ -26,7 +31,7 @@ pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
 
 pub fn choose_random_texture(textures: & [G2dTexture]) -> &G2dTexture {
     let mut rng = rand::thread_rng();
-    let index = rng.gen_range(1..textures.len());
+    let index = rng.gen_range(0..textures.len());
     &textures[index]
 }
 
@@ -36,34 +41,52 @@ pub fn draw_car(
     c: piston_window::Context,
     g: &mut piston_window::G2d,
 ) {
-    let texture = choose_random_texture(textures);
+    let texture = &textures[car.texture_id];
 
-    let transform = c.transform.trans(car.x as f64, car.y as f64);
+    // Translate the car to its position
+    let transform = c.transform.trans(
+        match car.direction {
+            Direction::North => car.x as f64 + WINDOW_WIDTH/2.0 + 90.0 + HALF_CAR_WIDTH,
+            Direction::South => car.x as f64 + WINDOW_WIDTH/2.0 - 90.0 - HALF_CAR_WIDTH,
+            Direction::East => car.x as f64,
+            Direction::West => car.x as f64 + WINDOW_WIDTH,
+            _ => car.x as f64,
+        },
+        match car.direction {
+            Direction::North => car.y as f64 + WINDOW_HEIGHT,
+            Direction::South => car.y as f64,
+            Direction::East => car.y as f64 + WINDOW_HEIGHT/2.0 + 90.0 + HALF_CAR_WIDTH,
+            Direction::West => car.y as f64 + WINDOW_HEIGHT/2.0 - 90.0 - HALF_CAR_WIDTH,
+            _ => car.y as f64,
+        },
+    );
 
+    // Rotate the car according to its direction
     let rotated_transform = match car.direction {
-        Direction::North => transform.rot_rad(0.0),  // No rotation
-        Direction::South => transform.rot_rad(std::f64::consts::PI),  // 180 degrees
+        Direction::North => transform.rot_rad(std::f64::consts::PI),  // No rotation
+        Direction::South => transform.rot_rad(0.0),  // 180 degrees
         Direction::East => transform.rot_rad(-std::f64::consts::PI / 2.0),  // 90 degrees counter-clockwise
         Direction::West => transform.rot_rad(std::f64::consts::PI / 2.0),  // 90 degrees clockwise
         _ => transform.rot_rad(0.0),  // Default to no rotation
     };
 
-    piston_window::image(texture, rotated_transform, g);
+
+    piston_window::image(texture, rotated_transform.scale(0.5, 0.5), g);
 }
 
 pub fn update_car_position(car: &mut Car) {
     match car.direction {
         Direction::North => {
-            car.y -= 2;
+            car.y -= 1;
         }
         Direction::South => {
-            car.y += 2;
+            car.y += 1;
         }
         Direction::East => {
-            car.x += 2;
+            car.x += 1;
         }
         Direction::West => {
-            car.x -= 2;
+            car.x -= 1;
         }
         _ => {}
     }
