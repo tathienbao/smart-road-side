@@ -12,6 +12,7 @@ pub mod render {
 }
 
 pub mod input;
+pub mod logic;
 
 pub use crate::render::direction_renderer;
 pub use object::car::Car;

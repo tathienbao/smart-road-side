@@ -5,9 +5,11 @@ use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_ri
 use crate::object::car::Car;
 use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures};
 use crate::keyboard::handle_keyboard_event;
+use crate::logic::logic::draw_intersection;
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
+const HALF_CAR_WIDTH: i32 = 18;
 
 pub struct RendererManager {
     pub window: PistonWindow,
@@ -39,7 +41,9 @@ impl RendererManager {
             self.window.draw_2d(&event, |c, g, _| {
                 clear([0.0, 0.0, 0.0, 1.0], g);
 
-                //draw leading line
+                draw_intersection(c, g);
+
+                //draw leading lines
                 draw_north_right(c, g);
                 draw_east_right(c, g);
                 draw_south_right(c, g);
@@ -62,12 +66,20 @@ impl RendererManager {
                 if let Some(direction) = handle_keyboard_event(key) {
                     let texture_id = rand::thread_rng().gen_range(0..self.textures.len());
 
-                    let car = Car::new(0, 0, direction, texture_id);
+                    let (_init_x, _init_y) = match direction {
+                        Direction::North => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH, WINDOW_HEIGHT),
+                        Direction::South => (WINDOW_WIDTH / 2 - 90 - HALF_CAR_WIDTH, 0),
+                        Direction::East => (0, WINDOW_HEIGHT / 2 + 90 + HALF_CAR_WIDTH),
+                        Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 90 - HALF_CAR_WIDTH),
+                        _ => (0, 0),
+                    };
+
+                    let car = Car::new(_init_x, _init_y, direction, texture_id);
                     self.cars.push(car);
                 }
             }
 
-            // Update all cars' positions
+            // Update all cars' positions to make them move
             for car in &mut self.cars {
                 update_car_position(car);
             }

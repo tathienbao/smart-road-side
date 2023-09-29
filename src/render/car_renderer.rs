@@ -1,13 +1,8 @@
 use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow};
 use std::fs;
-use crate::object::car::Car;
+use crate::object::car::{Car, CarSpeed};
 use crate::object::direction::Direction;
-use rand::Rng;
-
-const WINDOW_WIDTH: f64 = 1600.0;
-const WINDOW_HEIGHT: f64 = 1200.0;
-
-const HALF_CAR_WIDTH: f64 = 17.0;
+use crate::logic::logic::in_intersection;
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
@@ -29,12 +24,6 @@ pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     textures
 }
 
-pub fn choose_random_texture(textures: & [G2dTexture]) -> &G2dTexture {
-    let mut rng = rand::thread_rng();
-    let index = rng.gen_range(0..textures.len());
-    &textures[index]
-}
-
 pub fn draw_car(
     car: &Car,
     textures: &[G2dTexture],
@@ -44,22 +33,7 @@ pub fn draw_car(
     let texture = &textures[car.texture_id];
 
     // Translate the car to its position
-    let transform = c.transform.trans(
-        match car.direction {
-            Direction::North => car.x as f64 + WINDOW_WIDTH/2.0 + 90.0 + HALF_CAR_WIDTH,
-            Direction::South => car.x as f64 + WINDOW_WIDTH/2.0 - 90.0 - HALF_CAR_WIDTH,
-            Direction::East => car.x as f64,
-            Direction::West => car.x as f64 + WINDOW_WIDTH,
-            _ => car.x as f64,
-        },
-        match car.direction {
-            Direction::North => car.y as f64 + WINDOW_HEIGHT,
-            Direction::South => car.y as f64,
-            Direction::East => car.y as f64 + WINDOW_HEIGHT/2.0 + 90.0 + HALF_CAR_WIDTH,
-            Direction::West => car.y as f64 + WINDOW_HEIGHT/2.0 - 90.0 - HALF_CAR_WIDTH,
-            _ => car.y as f64,
-        },
-    );
+    let transform = c.transform.trans(car.x as f64, car.y as f64);
 
     // Rotate the car according to its direction
     let rotated_transform = match car.direction {
@@ -75,18 +49,26 @@ pub fn draw_car(
 }
 
 pub fn update_car_position(car: &mut Car) {
+    if in_intersection(car) {
+        car.speed = CarSpeed::Slow;
+    } else {
+        car.speed = CarSpeed::Default;
+    }
+
+    let speed = car.speed as i32;
+
     match car.direction {
         Direction::North => {
-            car.y -= 1;
+            car.y -= speed;
         }
         Direction::South => {
-            car.y += 1;
+            car.y += speed;
         }
         Direction::East => {
-            car.x += 1;
+            car.x += speed;
         }
         Direction::West => {
-            car.x -= 1;
+            car.x -= speed;
         }
         _ => {}
     }
