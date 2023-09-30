@@ -1,9 +1,9 @@
 use std::collections::VecDeque;
 use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow, line, Context, G2d, rectangle};
 use std::fs;
-use crate::object::car::{Car, CarSpeed};
+use crate::object::car::{Car, CarSpeed, TurnState};
 use crate::object::direction::Direction;
-use crate::logic::logic::{in_intersection, should_stop};
+use crate::logic::logic::{in_intersection, perform_turn, should_stop, turn_checker};
 
 const CAR_WIDTH: f64 = 37.0;
 const CAR_HEIGHT: f64 = 70.0;
@@ -45,6 +45,13 @@ pub fn draw_car(
         Direction::South => transform.rot_rad(0.0),  // 180 degrees
         Direction::East => transform.rot_rad(-std::f64::consts::PI / 2.0),  // 90 degrees counter-clockwise
         Direction::West => transform.rot_rad(std::f64::consts::PI / 2.0),  // 90 degrees clockwise
+        Direction::NorthRight => {
+            match car.turn_state {
+                TurnState::BeforeTurn => transform.rot_rad(std::f64::consts::PI),
+                TurnState::TurnPhase => transform.rot_rad(3.0 * std::f64::consts::PI / 4.0),
+                TurnState::AfterTurn => transform.rot_rad(-std::f64::consts::PI / 2.0),
+            }
+        },
         _ => transform.rot_rad(0.0),  // Default to no rotation
     };
 
@@ -85,6 +92,21 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
         }
         Direction::West => {
             car.x -= speed;
+        }
+        Direction::NorthRight => {
+            turn_checker(car, some_condition);
+
+            match car.turn_state {
+                TurnState::BeforeTurn => {
+                    car.y -= speed;
+                }
+                TurnState::TurnPhase => {
+                    perform_turn(car);  // Perform the turn here
+                }
+                TurnState::AfterTurn => {
+                    car.x += speed;
+                }
+            }
         }
         _ => {}
     }

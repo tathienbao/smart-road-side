@@ -1,11 +1,15 @@
 use std::collections::VecDeque;
 use crate::Car;
 use piston_window::{rectangle, Context, G2d, line};
+use crate::direction::Direction;
+use crate::object::car::TurnState;
 
 const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
-const INTERSECTION_SIZE: f64 = 600.0;  // Size of intersection square
+const INTERSECTION_SIZE: f64 = 600.0;
 
+/// INTERSECTION LOGIC
+// Check if a car is in the intersection
 pub fn in_intersection(car: &Car) -> bool {
     let x_center = WINDOW_WIDTH / 2.0;
     let y_center = WINDOW_HEIGHT / 2.0;
@@ -33,6 +37,9 @@ pub fn draw_intersection(c: Context, g: &mut G2d) {
     );
 }
 
+
+/// HIT BOX AND WHISKER LOGIC
+///
 // Define the hit box borders for a car
 fn line_intersects_rect(line_p1: (f32, f32), line_p2: (f32, f32), rect: (f32, f32, f32, f32)) -> bool {
     // Rectangle edges
@@ -55,6 +62,7 @@ fn line_intersects_rect(line_p1: (f32, f32), line_p2: (f32, f32), rect: (f32, f3
     false
 }
 
+// Check if two lines intersect each other
 fn line_line_intersection(a1: (f32, f32), a2: (f32, f32), b1: (f32, f32), b2: (f32, f32)) -> bool {
     let (x1, y1) = a1;
     let (x2, y2) = a2;
@@ -78,7 +86,7 @@ fn line_line_intersection(a1: (f32, f32), a2: (f32, f32), b1: (f32, f32), b2: (f
     false
 }
 
-// Draw to check precision of the cut rectangular
+// Draw to display precision of the cut rectangular
 pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d) {
     let (x, y, w, h) = rect;
 
@@ -100,11 +108,50 @@ pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d)
     }
 }
 
+/// TURNING CAR LOGIC
+///
+pub fn perform_turn(car: &mut Car) {
+    let radius = 50.0; // Arc radius
+    let angle_increment = std::f64::consts::PI / 180.0 * 2.0; // Incremental angle in radians
+
+    match car.direction {
+        Direction::NorthRight => {
+            // Arc center
+            let (center_x, center_y) = (car.x as f64 - radius, car.y as f64);
+            // Tính góc hiện tại
+            let angle = (car.y as f64 - center_y).atan2(car.x as f64 - center_x);
+            // Angle update after increment
+            let new_angle = angle - angle_increment;
+
+            car.x = (center_x + radius * new_angle.cos()) as i32;
+            car.y = (center_y + radius * new_angle.sin()) as i32;
+        },
+        // Other directions
+        _ => {}
+    }
+}
+
+pub fn turn_checker(car: &mut Car, some_condition: bool) {
+    if in_intersection(car) {
+        match car.turn_state {
+            TurnState::BeforeTurn => {
+                car.turn_state = TurnState::TurnPhase;
+            }
+            TurnState::TurnPhase => {
+                if some_condition {
+                    car.turn_state = TurnState::AfterTurn;
+                }
+            }
+            TurnState::AfterTurn => {
+                // The car has completed the turn and is now moving in the new direction
+            }
+        }
+    }
+}
+
 
 /// THIS SECTION IS FOR PRIORITY QUEUE LOGIC
 /// WE HAVE 4 FUNCTIONS.
-///
-
 // For cars at slow speed
 pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
@@ -146,6 +193,7 @@ pub fn update_intersection_status(cars: &mut VecDeque<Car>, insiders: &mut VecDe
 // Check conflict by directions
 pub fn check_conflict_by_direction(insiders: &VecDeque<usize>, cars: &VecDeque<Car>) -> bool {
     // Check for conflicts in direction among the cars in `Insiders`
+    false
 }
 
 
