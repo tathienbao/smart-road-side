@@ -1,10 +1,12 @@
 use std::collections::VecDeque;
 use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow, line, Context, G2d, rectangle};
 use std::fs;
-use crate::object::car::{Car, CarSpeed, TurnState};
+use crate::object::car::{Car, CarSpeed};
 use crate::object::direction::Direction;
-use crate::logic::logic::{in_intersection, perform_turn, should_stop, turn_checker};
+use crate::logic::logic::{in_intersection, perform_turn, should_stop};
 
+const WINDOW_WIDTH: i32 = 1600;
+const WINDOW_HEIGHT: i32 = 1200;
 const CAR_WIDTH: f64 = 37.0;
 const CAR_HEIGHT: f64 = 70.0;
 
@@ -45,13 +47,7 @@ pub fn draw_car(
         Direction::South => transform.rot_rad(0.0),  // 180 degrees
         Direction::East => transform.rot_rad(-std::f64::consts::PI / 2.0),  // 90 degrees counter-clockwise
         Direction::West => transform.rot_rad(std::f64::consts::PI / 2.0),  // 90 degrees clockwise
-        Direction::NorthRight => {
-            match car.turn_state {
-                TurnState::BeforeTurn => transform.rot_rad(std::f64::consts::PI),
-                TurnState::TurnPhase => transform.rot_rad(3.0 * std::f64::consts::PI / 4.0),
-                TurnState::AfterTurn => transform.rot_rad(-std::f64::consts::PI / 2.0),
-            }
-        },
+        Direction::NorthRight => transform.rot_rad(std::f64::consts::PI),
         _ => transform.rot_rad(0.0),  // Default to no rotation
     };
 
@@ -94,18 +90,12 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
             car.x -= speed;
         }
         Direction::NorthRight => {
-            turn_checker(car, false);
-
-            match car.turn_state {
-                TurnState::BeforeTurn => {
-                    car.y -= speed;
-                }
-                TurnState::TurnPhase => {
-                    perform_turn(car);  // Perform the turn here
-                }
-                TurnState::AfterTurn => {
-                    car.x += speed;
-                }
+            if car.y > WINDOW_HEIGHT / 2 + 200 {
+                car.y -= speed;
+            } else if car.x > WINDOW_WIDTH / 2 + 200 {
+                car.x += speed;
+            } else {
+                perform_turn(car);
             }
         }
         _ => {}

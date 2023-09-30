@@ -1,8 +1,6 @@
 use std::collections::VecDeque;
 use crate::Car;
 use piston_window::{rectangle, Context, G2d, line};
-use crate::direction::Direction;
-use crate::object::car::TurnState;
 
 const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
@@ -110,43 +108,48 @@ pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d)
 
 /// TURNING CAR LOGIC
 ///
+// Update the car's position based on Bezier curve
+use kurbo::{ParamCurve, Point};
+use crate::direction::Direction;
 pub fn perform_turn(car: &mut Car) {
-    let radius = 50.0; // Arc radius
-    let angle_increment = std::f64::consts::PI / 180.0 * 2.0; // Incremental angle in radians
-
-    match car.direction {
-        Direction::NorthRight => {
-            // Arc center
-            let (center_x, center_y) = (car.x as f64 - radius, car.y as f64);
-            // Tính góc hiện tại
-            let angle = (car.y as f64 - center_y).atan2(car.x as f64 - center_x);
-            // Angle update after increment
-            let new_angle = angle - angle_increment;
-
-            car.x = (center_x + radius * new_angle.cos()) as i32;
-            car.y = (center_y + radius * new_angle.sin()) as i32;
-        },
-        // Other directions
-        _ => {}
+    if car.turn_progress >= 1.0 {
+        return; // Done turning
     }
-}
 
-pub fn turn_checker(car: &mut Car, some_condition: bool) {
-    if in_intersection(car) {
-        match car.turn_state {
-            TurnState::BeforeTurn => {
-                car.turn_state = TurnState::TurnPhase;
-            }
-            TurnState::TurnPhase => {
-                if some_condition {
-                    car.turn_state = TurnState::AfterTurn;
-                }
-            }
-            TurnState::AfterTurn => {
-                // The car has completed the turn and is now moving in the new direction
-            }
-        }
+    // Increment turn progress based on some condition or speed
+    car.turn_progress += 1.0/480.0 ; // The smaller the value, the slower the turn
+    if car.turn_progress > 1.0 {
+        car.turn_progress = 1.0;
     }
+
+    // Rest of the code remains the same
+    let t = car.turn_progress;
+    // Declare control points for cubic Bézier curve
+    let (p0, p1, p2, p3) = match car.direction {
+        Direction::NorthRight => (
+            Point::new(car.x as f64, car.y as f64),
+            Point::new(car.x as f64 + 10.0, car.y as f64 - 00.0),
+            Point::new(car.x as f64 + 10.0, car.y as f64 - 00.0),
+            Point::new(car.x as f64 + 30.0, car.y as f64 - 50.0)
+        ),
+        // Add other cases here
+        _ => (
+            Point::new(car.x as f64, car.y as f64), // Default points, change accordingly
+            Point::new(car.x as f64, car.y as f64),
+            Point::new(car.x as f64, car.y as f64),
+            Point::new(car.x as f64, car.y as f64)
+        )
+    };
+
+    // Create a cubic Bézier curve
+    let curve = kurbo::CubicBez::new(p0, p1, p2, p3);
+
+
+    // get the position of the car at t
+    let pos = curve.eval(t);
+
+    car.x = pos.x as i32;
+    car.y = pos.y as i32;
 }
 
 
