@@ -94,7 +94,7 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
             car.x -= speed;
         }
         Direction::NorthRight => {
-            turn_checker(car, some_condition);
+            turn_checker(car, false);
 
             match car.turn_state {
                 TurnState::BeforeTurn => {

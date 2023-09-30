@@ -65,6 +65,7 @@ impl RendererManager {
                             Direction::North => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH, WINDOW_HEIGHT),
                             Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 90 - HALF_CAR_WIDTH),
                             Direction::South => (WINDOW_WIDTH / 2 - 90 - HALF_CAR_WIDTH, 0),
+                            Direction::NorthRight => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH + 60, WINDOW_HEIGHT),
                             _ => (0, 0),
                         };
 
