@@ -7,7 +7,6 @@ use crate::object::car::Car;
 use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box};
 use crate::keyboard::handle_keyboard_event;
 use crate::logic::logic::{draw_intersection, draw_rectangle_edges, safe_spawning};
-use crate::render::text::draw_insider_indices;
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
@@ -18,6 +17,7 @@ pub struct RendererManager {
     pub textures: Vec<G2dTexture>,
     pub show_hit_box_and_whisker: bool,
     insiders: VecDeque<usize>,
+    pub glyphs: Glyphs,
 }
 
 impl RendererManager {
@@ -31,6 +31,7 @@ impl RendererManager {
         window.set_ups(60);
 
         let textures = load_all_textures(&mut window);
+        let glyphs = window.load_font("./assets/rainyhearts.ttf").unwrap();
 
         Self {
             window,
@@ -38,6 +39,7 @@ impl RendererManager {
             textures,
             show_hit_box_and_whisker: false,
             insiders: VecDeque::new(),
+            glyphs,
         }
     }
 
@@ -118,7 +120,19 @@ impl RendererManager {
                     }
                 }
 
-                draw_insider_indices(c, g,&self.cars, &mut self.insiders);
+                // Draw insider indices
+                for &insider_id in &self.insiders {
+                    let car = &self.cars[insider_id];
+                    let transform = c.transform.trans(car.x as f64, car.y as f64);
+
+                    text::Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
+                        &insider_id.to_string(),
+                        &mut self.glyphs,
+                        &c.draw_state,
+                        transform,
+                        g
+                    ).unwrap();
+                }
             });
 
 
