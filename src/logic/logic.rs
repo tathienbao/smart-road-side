@@ -4,7 +4,7 @@ use piston_window::{rectangle, Context, G2d, line};
 
 const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
-const INTERSECTION_SIZE: f64 = 600.0;
+const INTERSECTION_SIZE: f64 = 400.0;
 const CURVE_RADIUS_RIGHT: f64 = 50.0;
 const CURVE_RADIUS_LEFT: f64 = 120.0;
 
@@ -222,16 +222,16 @@ pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Opti
 
     for car in cars.iter() {
         if let Some(index) = available_directions.iter().position(|dir| dir == &car.direction) {
-            // Kiểm tra xem xe có trong khoảng cách an toàn không
+            // Check if the car is too close to the spawn point
             let dx = (car.x - init_x as i32).abs();
             let dy = (car.y - init_y as i32).abs();
             if dx <= SAFE_SPAWN_DISTANCE && dy <= SAFE_SPAWN_DISTANCE {
-                // Xóa hướng này khỏi các hướng có sẵn
+                // Delete the direction from the list of available directions
                 available_directions.remove(index);
             }
         }
 
-        // Không còn hướng nào khả dụng
+        // No available directions
         if available_directions.is_empty() {
             return None;
         }
@@ -243,11 +243,11 @@ pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Opti
 
 pub fn get_initial_coordinates(direction: Direction) -> (f64, f64) {
     match direction {
-        Direction::North => (WINDOW_WIDTH / 2.0, WINDOW_HEIGHT),
-        Direction::East => (0.0, WINDOW_HEIGHT / 2.0),
-        Direction::South => (WINDOW_WIDTH / 2.0, 0.0),
-        Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2.0),
-        Direction::NorthRight => (WINDOW_WIDTH / 2.0 + 90.0, WINDOW_HEIGHT),
+        Direction::North => (WINDOW_WIDTH / 2.0 + 100.0, WINDOW_HEIGHT),
+        Direction::East => (0.0, WINDOW_HEIGHT / 2.0 + 100.0),
+        Direction::South => (WINDOW_WIDTH / 2.0 - 100.0, 0.0),
+        Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2.0 - 100.0),
+        Direction::NorthRight => (WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT),
         _ => (0.0, 0.0),
     }
 }
