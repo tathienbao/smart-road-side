@@ -11,7 +11,6 @@ use crate::logic::logic::{draw_intersection, draw_rectangle_edges};
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
-const HALF_CAR_WIDTH: i32 = 18;
 
 pub struct RendererManager {
     pub window: PistonWindow,
@@ -28,8 +27,8 @@ impl RendererManager {
             .build()
             .unwrap();
 
-        window.set_max_fps(120);
-        window.set_ups(120);
+        window.set_max_fps(60);
+        window.set_ups(60);
 
         let textures = load_all_textures(&mut window);
 
@@ -61,11 +60,11 @@ impl RendererManager {
                         let id = self.cars.len();
 
                         let (_init_x, _init_y) = match direction {
-                            Direction::East => (0, WINDOW_HEIGHT / 2 + 90 + HALF_CAR_WIDTH),
-                            Direction::North => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH, WINDOW_HEIGHT),
-                            Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 90 - HALF_CAR_WIDTH),
-                            Direction::South => (WINDOW_WIDTH / 2 - 90 - HALF_CAR_WIDTH, 0),
-                            Direction::NorthRight => (WINDOW_WIDTH / 2 + 90 + HALF_CAR_WIDTH + 60, WINDOW_HEIGHT),
+                            Direction::East => (0, WINDOW_HEIGHT / 2 + 90),
+                            Direction::North => (WINDOW_WIDTH / 2 + 90, WINDOW_HEIGHT),
+                            Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 90),
+                            Direction::South => (WINDOW_WIDTH / 2 - 90, 0),
+                            Direction::NorthRight => (WINDOW_WIDTH / 2 + 90 + 60, WINDOW_HEIGHT),
                             _ => (0, 0),
                         };
 

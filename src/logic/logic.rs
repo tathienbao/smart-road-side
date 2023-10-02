@@ -5,6 +5,9 @@ use piston_window::{rectangle, Context, G2d, line};
 const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
 const INTERSECTION_SIZE: f64 = 600.0;
+const CURVE_RADIUS_RIGHT: f64 = 50.0;
+const CURVE_RADIUS_LEFT: f64 = 120.0;
+
 
 /// INTERSECTION LOGIC
 // Check if a car is in the intersection
@@ -117,20 +120,21 @@ pub fn perform_turn(car: &mut Car) {
     }
 
     // Increment turn progress based on some condition or speed
-    car.turn_progress += 1.0/480.0 ; // The smaller the value, the slower the turn
+    car.turn_progress += 1.0/60.0 ; // The smaller the value, the slower the turn
     if car.turn_progress > 1.0 {
         car.turn_progress = 1.0;
     }
 
     // Rest of the code remains the same
     let t = car.turn_progress;
+
     // Declare control points for cubic Bézier curve
     let (p0, p1, p2, p3) = match car.direction {
         Direction::NorthRight => (
-            Point::new(car.x as f64, car.y as f64),
-            Point::new(car.x as f64 + 10.0, car.y as f64 - 00.0),
-            Point::new(car.x as f64 + 10.0, car.y as f64 - 00.0),
-            Point::new(car.x as f64 + 30.0, car.y as f64 - 50.0)
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0 - 30.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0 + 20.0, WINDOW_HEIGHT / 2.0 + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 + CURVE_RADIUS_RIGHT + 151.0, WINDOW_HEIGHT / 2.0 + 150.0)
         ),
         // Add other cases here
         _ => (

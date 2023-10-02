@@ -47,7 +47,7 @@ pub fn draw_car(
         Direction::South => transform.rot_rad(0.0),  // 180 degrees
         Direction::East => transform.rot_rad(-std::f64::consts::PI / 2.0),  // 90 degrees counter-clockwise
         Direction::West => transform.rot_rad(std::f64::consts::PI / 2.0),  // 90 degrees clockwise
-        Direction::NorthRight => transform.rot_rad(std::f64::consts::PI),
+        Direction::NorthRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI),
         _ => transform.rot_rad(0.0),  // Default to no rotation
     };
 
@@ -117,10 +117,10 @@ pub fn draw_whisker(
 
     // A whisker start from the car's position and ends at the whisker's position
     match car.direction {
-        Direction::North => line(blue, 1.0, [car_x - CAR_WIDTH/2.0, car_y, whisker_x - CAR_WIDTH/2.0, whisker_y], c.transform, g),
-        Direction::South => line(blue, 1.0, [car_x + CAR_WIDTH/2.0, car_y, whisker_x + CAR_WIDTH/2.0, whisker_y], c.transform, g),
-        Direction::East => line(blue, 1.0, [car_x, car_y - CAR_WIDTH/2.0, whisker_x, whisker_y - CAR_WIDTH/2.0], c.transform, g),
-        Direction::West => line(blue, 1.0, [car_x, car_y + CAR_WIDTH/2.0, whisker_x, whisker_y + CAR_WIDTH/2.0], c.transform, g),
+        Direction::North => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::South => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::East => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::West => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
         _ => {}
     }
 }
@@ -143,7 +143,7 @@ pub fn draw_hit_box(car: &Car, c: Context, g: &mut G2d) {
     let red: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
             rectangle(
                 red,
-                [car.hit_box.x - CAR_WIDTH, car.hit_box.y - CAR_WIDTH, car.hit_box.width, car.hit_box.height],
+                [car.hit_box.x, car.hit_box.y, car.hit_box.width, car.hit_box.height],
                 c.transform,
                 g,
             );
