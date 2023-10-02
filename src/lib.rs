@@ -8,7 +8,7 @@ pub mod render {
     pub mod car_renderer;
     pub mod direction_renderer;
     pub mod renderer_manager;
-   // and others
+    pub mod text;
 }
 
 pub mod input;

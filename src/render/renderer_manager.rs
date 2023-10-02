@@ -7,6 +7,7 @@ use crate::object::car::Car;
 use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box};
 use crate::keyboard::handle_keyboard_event;
 use crate::logic::logic::{draw_intersection, draw_rectangle_edges, safe_spawning};
+use crate::render::text::draw_insider_indices;
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
@@ -16,6 +17,7 @@ pub struct RendererManager {
     pub cars: VecDeque<Car>,
     pub textures: Vec<G2dTexture>,
     pub show_hit_box_and_whisker: bool,
+    insiders: VecDeque<usize>,
 }
 
 impl RendererManager {
@@ -35,6 +37,7 @@ impl RendererManager {
             cars: VecDeque::new(),
             textures,
             show_hit_box_and_whisker: false,
+            insiders: VecDeque::new(),
         }
     }
 
@@ -114,6 +117,8 @@ impl RendererManager {
                         );
                     }
                 }
+
+                draw_insider_indices(c, g,&self.cars, &mut self.insiders);
             });
 
 
