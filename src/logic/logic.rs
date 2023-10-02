@@ -257,22 +257,22 @@ pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Opti
 
     // Determine the possible directions based on the desired direction
     match desired_direction {
-        Direction::North => {
+        Direction::North | Direction::NorthRight | Direction::NorthLeft => {
             available_directions.push(Direction::North);
             available_directions.push(Direction::NorthRight);
             available_directions.push(Direction::NorthLeft);
         },
-        Direction::East => {
+        Direction::East | Direction::EastLeft | Direction::EastRight => {
             available_directions.push(Direction::East);
             available_directions.push(Direction::EastRight);
             available_directions.push(Direction::EastLeft);
         },
-        Direction::South => {
+        Direction::South | Direction::SouthLeft | Direction::SouthRight => {
             available_directions.push(Direction::South);
             available_directions.push(Direction::SouthRight);
             available_directions.push(Direction::SouthLeft);
         },
-        Direction::West => {
+        Direction::West | Direction::WestLeft | Direction::WestRight => {
             available_directions.push(Direction::West);
             available_directions.push(Direction::WestRight);
             available_directions.push(Direction::WestLeft);
