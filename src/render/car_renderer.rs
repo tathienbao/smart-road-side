@@ -33,8 +33,8 @@ pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
 pub fn draw_car(
     car: &Car,
     textures: &[G2dTexture],
-    c: piston_window::Context,
-    g: &mut piston_window::G2d,
+    c: Context,
+    g: &mut G2d,
 ) {
     let texture = &textures[car.texture_id];
 
@@ -67,14 +67,24 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
     car.prev_x = car.x;
     car.prev_y = car.y;
 
-    // Check to avoid borrowing error
+    // Apply should remain stopped even if the car is not in the intersection
+    if car.should_remain_stopped {
+        car.speed = CarSpeed::Stop;
+        car.stop_frames = 60;
+        return;
+    }
+
     let safe_flag = collision_detect(cars, current_car_id);
 
     let car = &mut cars[current_car_id];
+
     if safe_flag {
         slow_down(car);
         if car.speed == CarSpeed::Stop {
             car.stop_frames = 60;
+            if safe_flag {
+                car.should_remain_stopped = true;
+            }
         }
     } else if in_intersection(car) {
         car.speed = CarSpeed::Slow;
@@ -260,3 +270,4 @@ pub fn update_hit_box(car: &mut Car) {
         }
     }
 }
+
