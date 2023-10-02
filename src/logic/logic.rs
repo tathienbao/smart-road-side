@@ -113,6 +113,8 @@ pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d)
 // Update the car's position based on Bezier curve
 use kurbo::{ParamCurve, Point};
 use crate::direction::Direction;
+use crate::object::car::CarSpeed;
+
 pub fn perform_turn(car: &mut Car) {
     if car.turn_progress >= 1.0 {
         return; // Done turning
@@ -207,7 +209,7 @@ pub fn perform_turn(car: &mut Car) {
 /// THIS SECTION IS FOR PRIORITY QUEUE LOGIC
 /// WE HAVE 4 FUNCTIONS.
 // For cars at slow speed
-pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
+pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
     let current_whisker_start = (current_car.x as f32, current_car.y as f32);
     let current_whisker_end = (current_car.whisker.x as f32, current_car.whisker.y as f32);
@@ -236,18 +238,30 @@ pub fn should_stop(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
 // For cars at high speed
 pub fn slow_down(car: &mut Car) {
     // Reduce the speed of the car to a safer level
+    car.speed = match car.speed {
+        CarSpeed::Default => CarSpeed::Slow,
+        CarSpeed::Slow => CarSpeed::Stop,
+        _ => CarSpeed::Stop,
+    };
 }
 
 // For cars that enter the intersection
-pub fn update_intersection_status(cars: &mut VecDeque<Car>, insiders: &mut VecDeque<usize>) {
+pub fn insiders(cars: &mut VecDeque<Car>, insiders: &mut VecDeque<usize>) {
     // Check if a car has entered the intersection
     // If yes, mark it as `is_inside` and add it to `Insiders`
+    for (idx, car) in cars.iter().enumerate() {
+        if in_intersection(car) {
+            insiders.push_back(idx);
+        }
+    }
 }
 
 // Check conflict by directions
-pub fn check_conflict_by_direction(insiders: &VecDeque<usize>, cars: &VecDeque<Car>) -> bool {
+pub fn check_conflict_by_direction(insiders: &VecDeque<usize>, cars: &VecDeque<Car>) {
     // Check for conflicts in direction among the cars in `Insiders`
-    false
+    if insiders.len() < 2 {
+        false;
+    }
 }
 
 /// Returns an available direction for spawning a new car, or None if no direction is available.
@@ -277,7 +291,6 @@ pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Opti
             available_directions.push(Direction::WestRight);
             available_directions.push(Direction::WestLeft);
         },
-        _ => return None, // Invalid or unsupported direction
     }
 
     let (init_x, init_y) = get_initial_coordinates(desired_direction);

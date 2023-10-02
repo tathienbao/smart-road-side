@@ -36,7 +36,7 @@ impl Car {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum CarSpeed {
     Stop = 0,
     Slow = 2,

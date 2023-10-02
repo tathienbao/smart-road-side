@@ -3,7 +3,7 @@ use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWin
 use std::fs;
 use crate::object::car::{Car, CarSpeed};
 use crate::object::direction::Direction;
-use crate::logic::logic::{in_intersection, perform_turn, should_stop};
+use crate::logic::logic::{collision_detect, in_intersection, perform_turn, slow_down};
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
@@ -68,12 +68,14 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
     car.prev_y = car.y;
 
     // Check to avoid borrowing error
-    let should_stop_flag = should_stop(cars, current_car_id);
+    let safe_flag = collision_detect(cars, current_car_id);
 
     let car = &mut cars[current_car_id];
-    if should_stop_flag {
-        car.speed = CarSpeed::Stop;
-        car.stop_frames = 60;
+    if safe_flag {
+        slow_down(car);
+        if car.speed == CarSpeed::Stop {
+            car.stop_frames = 60;
+        }
     } else if in_intersection(car) {
         car.speed = CarSpeed::Slow;
     } else {
