@@ -1,5 +1,4 @@
 use std::collections::VecDeque;
-use std::time::{Duration, Instant};
 use piston_window::*;
 use rand::Rng;
 use crate::direction::Direction;
@@ -64,7 +63,13 @@ impl RendererManager {
                             Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 100),
                             Direction::South => (WINDOW_WIDTH / 2 - 100, 0),
                             Direction::NorthRight => (WINDOW_WIDTH / 2 + 150, WINDOW_HEIGHT),
-                            _ => (0, 0),
+                            Direction::SouthRight => (WINDOW_WIDTH / 2 - 150, 0),
+                            Direction::EastRight => (0, WINDOW_HEIGHT / 2 + 150),
+                            Direction::WestRight => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 150),
+                            Direction::NorthLeft => (WINDOW_WIDTH / 2 + 50, WINDOW_HEIGHT),
+                            Direction::SouthLeft => (WINDOW_WIDTH / 2 - 50, 0),
+                            Direction::EastLeft => (0, WINDOW_HEIGHT / 2 + 50),
+                            Direction::WestLeft => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 50),
                         };
 
                         let car = Car::new(id ,_init_x, _init_y, actual_direction, texture_id);

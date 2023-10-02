@@ -134,13 +134,25 @@ pub fn perform_turn(car: &mut Car) {
             Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0),
             Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0 - 30.0),
             Point::new(WINDOW_WIDTH / 2.0 + 150.0 + 20.0, WINDOW_HEIGHT / 2.0 + 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 + CURVE_RADIUS_RIGHT + 151.0, WINDOW_HEIGHT / 2.0 + 150.0)
+            Point::new(WINDOW_WIDTH / 2.0 + 151.0 + CURVE_RADIUS_RIGHT, WINDOW_HEIGHT / 2.0 + 150.0)
         ),
         Direction::SouthRight => (
-            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0 - 30.0),
-            Point::new(WINDOW_WIDTH / 2.0 - 150.0 - 20.0, WINDOW_HEIGHT / 2.0 + 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 - CURVE_RADIUS_RIGHT - 151.0, WINDOW_HEIGHT / 2.0 + 150.0)
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT - 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT - 150.0 + 30.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0 - 20.0, WINDOW_HEIGHT / 2.0 - 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 151.0 - CURVE_RADIUS_RIGHT, WINDOW_HEIGHT / 2.0 - 150.0)
+        ),
+        Direction::EastRight => (
+            Point::new(WINDOW_WIDTH / 2.0 - CURVE_RADIUS_RIGHT - 150.0, WINDOW_HEIGHT / 2.0 - 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - CURVE_RADIUS_RIGHT - 150.0 + 30.0, WINDOW_HEIGHT / 2.0 - 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 - 150.0 - 20.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 - 151.0 - CURVE_RADIUS_RIGHT)
+        ),
+        Direction::WestRight => (
+            Point::new(WINDOW_WIDTH / 2.0 + CURVE_RADIUS_RIGHT + 150.0, WINDOW_HEIGHT / 2.0 + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 + CURVE_RADIUS_RIGHT + 150.0 - 30.0, WINDOW_HEIGHT / 2.0 + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + 150.0 + 20.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + 151.0 + CURVE_RADIUS_RIGHT)
         ),
         _ => (
             Point::new(car.x as f64, car.y as f64), // Default points, change accordingly

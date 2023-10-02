@@ -48,7 +48,13 @@ pub fn draw_car(
         Direction::East => transform.rot_rad(-std::f64::consts::PI / 2.0),  // 90 degrees counter-clockwise
         Direction::West => transform.rot_rad(std::f64::consts::PI / 2.0),  // 90 degrees clockwise
         Direction::NorthRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI),
-        _ => transform.rot_rad(0.0),  // Default to no rotation
+        Direction::SouthRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress),
+        Direction::EastRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI/2.0),
+        Direction::WestRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI/2.0),
+        Direction::NorthLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI),
+        Direction::SouthLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress),
+        Direction::EastLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI/2.0),
+        Direction::WestLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI/2.0),
     };
 
     // Draw the car
@@ -98,7 +104,69 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
                 perform_turn(car);
             }
         }
-        _ => {}
+        Direction::SouthRight => {
+            if car.y < WINDOW_HEIGHT / 2 - 200 {
+                car.y += speed;
+            } else if car.x < WINDOW_WIDTH / 2 - 200 {
+                car.x -= speed;
+            } else {
+                perform_turn(car);
+            }
+        }
+        Direction::EastRight => {
+            if car.x < WINDOW_WIDTH / 2 - 200 {
+                car.x += speed;
+            } else if car.y > WINDOW_HEIGHT / 2 + 200 {
+                car.y += speed;
+            } else {
+                perform_turn(car);
+            }
+        }
+        Direction::WestRight => {
+            if car.x > WINDOW_WIDTH / 2 + 200 {
+                car.x -= speed;
+            } else if car.y < WINDOW_HEIGHT / 2 - 200 {
+                car.y -= speed;
+            } else {
+                perform_turn(car);
+            }
+        }
+        Direction::NorthLeft => {
+            if car.y > WINDOW_HEIGHT / 2 + 200 {
+                car.y -= speed;
+            } else if car.x < WINDOW_WIDTH / 2 + 200 {
+                car.x -= speed;
+            } else {
+                perform_turn(car);
+            }
+        }
+        Direction::SouthLeft => {
+            if car.y < WINDOW_HEIGHT / 2 - 200 {
+                car.y += speed;
+            } else if car.x > WINDOW_WIDTH / 2 - 200 {
+                car.x += speed;
+            } else {
+                perform_turn(car);
+            }
+        }
+        Direction::EastLeft => {
+            if car.x < WINDOW_WIDTH / 2 - 200 {
+                car.x += speed;
+            } else if car.y < WINDOW_HEIGHT / 2 - 200 {
+                car.y += speed;
+            } else {
+                perform_turn(car);
+            }
+        }
+        Direction::WestLeft => {
+            if car.x > WINDOW_WIDTH / 2 + 200 {
+                car.x -= speed;
+            } else if car.y > WINDOW_HEIGHT / 2 + 200 {
+                car.y -= speed;
+            } else {
+                perform_turn(car);
+            }
+        }
     }
 }
 
