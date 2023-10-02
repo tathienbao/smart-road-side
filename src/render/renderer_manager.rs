@@ -7,7 +7,7 @@ use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_ri
 use crate::object::car::Car;
 use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box};
 use crate::keyboard::handle_keyboard_event;
-use crate::logic::logic::{draw_intersection, draw_rectangle_edges};
+use crate::logic::logic::{draw_intersection, draw_rectangle_edges, safe_spawning};
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
@@ -17,7 +17,6 @@ pub struct RendererManager {
     pub cars: VecDeque<Car>,
     pub textures: Vec<G2dTexture>,
     pub show_hit_box_and_whisker: bool,
-    pub last_car_spawn_time: Instant,
 }
 
 impl RendererManager {
@@ -37,7 +36,6 @@ impl RendererManager {
             cars: VecDeque::new(),
             textures,
             show_hit_box_and_whisker: false,
-            last_car_spawn_time: Instant::now(),
         }
     }
 
@@ -46,34 +44,35 @@ impl RendererManager {
 
             // Handle all keyboard events
             if let Some(Button::Keyboard(key)) = event.press_args() {
-                let now = Instant::now();
 
-                // Toggle hit box and whisker
+                // Toggle "hit box and whisker" debug display
                 if key == Key::L {
                     self.show_hit_box_and_whisker = !self.show_hit_box_and_whisker;
                 }
 
-                if now.duration_since(self.last_car_spawn_time) >= Duration::from_secs(1) {
-                    // Add a new car
-                    if let Some(direction) = handle_keyboard_event(key) {
+                // Add a new car
+                if let Some(desired_direction) = handle_keyboard_event(key) {
+                    // Use safe_spawning function to get an actual safe direction to spawn the car
+                    if let Some(actual_direction) = safe_spawning(&self.cars, desired_direction) {
                         let texture_id = rand::thread_rng().gen_range(0..self.textures.len());
                         let id = self.cars.len();
 
-                        let (_init_x, _init_y) = match direction {
-                            Direction::East => (0, WINDOW_HEIGHT / 2 + 90),
-                            Direction::North => (WINDOW_WIDTH / 2 + 90, WINDOW_HEIGHT),
-                            Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 90),
-                            Direction::South => (WINDOW_WIDTH / 2 - 90, 0),
-                            Direction::NorthRight => (WINDOW_WIDTH / 2 + 90 + 60, WINDOW_HEIGHT),
+                        // Get initial coordinates based on the actual safe direction
+                        let (_init_x, _init_y) = match actual_direction {
+                            Direction::East => (0, WINDOW_HEIGHT / 2 + 100),
+                            Direction::North => (WINDOW_WIDTH / 2 + 100, WINDOW_HEIGHT),
+                            Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2 - 100),
+                            Direction::South => (WINDOW_WIDTH / 2 - 100, 0),
+                            Direction::NorthRight => (WINDOW_WIDTH / 2 + 150, WINDOW_HEIGHT),
                             _ => (0, 0),
                         };
 
-                        let car = Car::new(id ,_init_x, _init_y, direction, texture_id);
+                        let car = Car::new(id ,_init_x, _init_y, actual_direction, texture_id);
                         self.cars.push_back(car);
-                        self.last_car_spawn_time = now;
                     }
                 }
             }
+
 
             // Draw on the canvas
             self.window.draw_2d(&event, |c, g, _| {

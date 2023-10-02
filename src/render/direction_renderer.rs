@@ -4,7 +4,7 @@ const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
 
 const CURVE_RADIUS_RIGHT: f64 = 50.0;
-const CURVE_RADIUS_LEFT: f64 = 100.0;
+const CURVE_RADIUS_LEFT: f64 = 150.0;
 
 const WHITE: [f32; 4] = [1.0, 1.0, 1.0, 1.0]; // White color
 

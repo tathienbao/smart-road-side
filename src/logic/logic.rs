@@ -6,7 +6,7 @@ const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
 const INTERSECTION_SIZE: f64 = 400.0;
 const CURVE_RADIUS_RIGHT: f64 = 50.0;
-const CURVE_RADIUS_LEFT: f64 = 120.0;
+const CURVE_RADIUS_LEFT: f64 = 150.0;
 
 
 /// INTERSECTION LOGIC
@@ -136,7 +136,12 @@ pub fn perform_turn(car: &mut Car) {
             Point::new(WINDOW_WIDTH / 2.0 + 150.0 + 20.0, WINDOW_HEIGHT / 2.0 + 150.0),
             Point::new(WINDOW_WIDTH / 2.0 + CURVE_RADIUS_RIGHT + 151.0, WINDOW_HEIGHT / 2.0 + 150.0)
         ),
-        // Add other cases here
+        Direction::SouthRight => (
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0 - 30.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0 - 20.0, WINDOW_HEIGHT / 2.0 + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - CURVE_RADIUS_RIGHT - 151.0, WINDOW_HEIGHT / 2.0 + 150.0)
+        ),
         _ => (
             Point::new(car.x as f64, car.y as f64), // Default points, change accordingly
             Point::new(car.x as f64, car.y as f64),
@@ -214,11 +219,19 @@ pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Opti
             available_directions.push(Direction::North);
             available_directions.push(Direction::NorthRight);
         },
-        // ... Similar cases for East, West, and South
+        Direction::East => {
+            available_directions.push(Direction::East);
+        },
+        Direction::South => {
+            available_directions.push(Direction::South);
+        },
+        Direction::West => {
+            available_directions.push(Direction::West);
+        },
         _ => return None, // Invalid or unsupported direction
     }
 
-    let (init_x, init_y) = get_initial_coordinates(desired_direction); // Giả định bạn có hàm này để lấy tọa độ khởi tạo
+    let (init_x, init_y) = get_initial_coordinates(desired_direction);
 
     for car in cars.iter() {
         if let Some(index) = available_directions.iter().position(|dir| dir == &car.direction) {
@@ -237,7 +250,7 @@ pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Opti
         }
     }
 
-    // Trả về hướng khả dụng đầu tiên
+    // Return the first available direction
     available_directions.first().cloned()
 }
 
