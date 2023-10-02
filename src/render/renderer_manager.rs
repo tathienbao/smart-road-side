@@ -12,26 +12,26 @@ const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
 
 pub struct RendererManager {
-    pub window: PistonWindow,
-    pub cars: VecDeque<Car>,
-    pub textures: Vec<G2dTexture>,
-    pub show_hit_box_and_whisker: bool,
-    insiders: VecDeque<usize>,
-    pub glyphs: Glyphs,
-}
+        pub window: PistonWindow,
+        pub cars: VecDeque<Car>,
+        pub textures: Vec<G2dTexture>,
+        pub show_hit_box_and_whisker: bool,
+        insiders: VecDeque<usize>,
+        pub glyphs: Glyphs,
+    }
 
-impl RendererManager {
-    pub fn new() -> RendererManager {
-        let mut window: PistonWindow = WindowSettings::new("Piston Smart Road", [1600, 1200])
-            .exit_on_esc(true)
-            .build()
-            .unwrap();
+    impl RendererManager {
+        pub fn new() -> RendererManager {
+            let mut window: PistonWindow = WindowSettings::new("Piston Smart Road", [1600, 1200])
+                .exit_on_esc(true)
+                .build()
+                .unwrap();
 
-        window.set_max_fps(60);
-        window.set_ups(60);
+            window.set_max_fps(60);
+            window.set_ups(60);
 
-        let textures = load_all_textures(&mut window);
-        let glyphs = window.load_font("./assets/rainyhearts.ttf").unwrap();
+            let textures = load_all_textures(&mut window);
+            let glyphs = window.load_font("./assets/rainyhearts.ttf").expect("Could not load font");
 
         Self {
             window,
@@ -110,8 +110,7 @@ impl RendererManager {
                     // Draw hit box and whisker if enabled
                     if self.show_hit_box_and_whisker {
                         draw_whisker(car, c, g);
-                        // draw_hit_box(car, c, g); // This is fake skin of hit box due to library rendering.
-                        // Real hit box is here
+                        // HitBox
                         draw_rectangle_edges(
                             (car.hit_box.x as f32, car.hit_box.y as f32, car.hit_box.width as f32, car.hit_box.height as f32),
                             c,
