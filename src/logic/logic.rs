@@ -310,6 +310,12 @@ pub fn get_initial_coordinates(direction: Direction) -> (f64, f64) {
         Direction::South => (WINDOW_WIDTH / 2.0 - 100.0, 0.0),
         Direction::West => (WINDOW_WIDTH, WINDOW_HEIGHT / 2.0 - 100.0),
         Direction::NorthRight => (WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT),
-        _ => (0.0, 0.0),
+        Direction::SouthRight => (WINDOW_WIDTH / 2.0 - 150.0, 0.0),
+        Direction::EastRight => (0.0, WINDOW_HEIGHT / 2.0 + 150.0),
+        Direction::WestRight => (WINDOW_WIDTH, WINDOW_HEIGHT / 2.0 - 150.0),
+        Direction::NorthLeft => (WINDOW_WIDTH / 2.0 + 50.0, WINDOW_HEIGHT),
+        Direction::SouthLeft => (WINDOW_WIDTH / 2.0 - 50.0, 0.0),
+        Direction::EastLeft => (0.0, WINDOW_HEIGHT / 2.0 + 50.0),
+        Direction::WestLeft => (WINDOW_WIDTH, WINDOW_HEIGHT / 2.0 - 50.0),
     }
 }
