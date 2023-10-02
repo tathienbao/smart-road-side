@@ -6,7 +6,6 @@ const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
 const INTERSECTION_SIZE: f64 = 400.0;
 const CURVE_RADIUS_RIGHT: f64 = 50.0;
-const CURVE_RADIUS_LEFT: f64 = 150.0;
 
 
 /// INTERSECTION LOGIC
@@ -119,8 +118,15 @@ pub fn perform_turn(car: &mut Car) {
         return; // Done turning
     }
 
-    // Increment turn progress based on some condition or speed
-    car.turn_progress += 1.0/60.0 ; // The smaller the value, the slower the turn
+    // Determine the rate of turn based on direction
+    let turn_rate = match car.direction {
+        Direction::NorthRight | Direction::SouthRight | Direction::EastRight | Direction::WestRight => 1.0 / 60.0, // 1 second to complete the turn
+        Direction::NorthLeft | Direction::SouthLeft | Direction::EastLeft | Direction::WestLeft => 1.0 / 120.0, // 2 seconds to complete the turn
+        _ => 1.0 / 60.0, // Default to 1 second if direction does not involve turning
+    };
+
+    // Increment turn progress based on the calculated rate
+    car.turn_progress += turn_rate;
     if car.turn_progress > 1.0 {
         car.turn_progress = 1.0;
     }
@@ -137,29 +143,53 @@ pub fn perform_turn(car: &mut Car) {
             Point::new(WINDOW_WIDTH / 2.0 + 151.0 + CURVE_RADIUS_RIGHT, WINDOW_HEIGHT / 2.0 + 150.0)
         ),
         Direction::SouthRight => (
-            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT - 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT - 150.0 + 30.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 - 150.0 - CURVE_RADIUS_RIGHT ),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 - 150.0 - CURVE_RADIUS_RIGHT + 30.0),
             Point::new(WINDOW_WIDTH / 2.0 - 150.0 - 20.0, WINDOW_HEIGHT / 2.0 - 150.0),
             Point::new(WINDOW_WIDTH / 2.0 - 151.0 - CURVE_RADIUS_RIGHT, WINDOW_HEIGHT / 2.0 - 150.0)
         ),
         Direction::EastRight => (
-            Point::new(WINDOW_WIDTH / 2.0 - CURVE_RADIUS_RIGHT - 150.0, WINDOW_HEIGHT / 2.0 - 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 - CURVE_RADIUS_RIGHT - 150.0 + 30.0, WINDOW_HEIGHT / 2.0 - 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 - 150.0 - 20.0),
-            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 - 151.0 - CURVE_RADIUS_RIGHT)
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0 - CURVE_RADIUS_RIGHT, WINDOW_HEIGHT / 2.0 + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0 - CURVE_RADIUS_RIGHT + 30.0, WINDOW_HEIGHT / 2.0 + 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + 150.0 + 30.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 150.0, WINDOW_HEIGHT / 2.0 + 151.0 + CURVE_RADIUS_RIGHT)
         ),
         Direction::WestRight => (
-            Point::new(WINDOW_WIDTH / 2.0 + CURVE_RADIUS_RIGHT + 150.0, WINDOW_HEIGHT / 2.0 + 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 + CURVE_RADIUS_RIGHT + 150.0 - 30.0, WINDOW_HEIGHT / 2.0 + 150.0),
-            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + 150.0 + 20.0),
-            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + 151.0 + CURVE_RADIUS_RIGHT)
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0 + CURVE_RADIUS_RIGHT, WINDOW_HEIGHT / 2.0 - 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0 + CURVE_RADIUS_RIGHT - 30.0, WINDOW_HEIGHT / 2.0 - 150.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 - 150.0 - 30.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 - 151.0 - CURVE_RADIUS_RIGHT)
         ),
-        _ => (
-            Point::new(car.x as f64, car.y as f64), // Default points, change accordingly
-            Point::new(car.x as f64, car.y as f64),
-            Point::new(car.x as f64, car.y as f64),
-            Point::new(car.x as f64, car.y as f64)
-        )
+        Direction::NorthLeft => (
+            Point::new(WINDOW_WIDTH / 2.0 + 50.0, WINDOW_HEIGHT / 2.0 + 200.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 50.0, WINDOW_HEIGHT / 2.0 + 200.0 - 120.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 50.0 - 120.0, WINDOW_HEIGHT / 2.0 - 50.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 201.0, WINDOW_HEIGHT / 2.0 - 50.0)
+        ),
+        Direction::SouthLeft => (
+            Point::new(WINDOW_WIDTH / 2.0 - 50.0, WINDOW_HEIGHT / 2.0 - 200.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 50.0, WINDOW_HEIGHT / 2.0 - 200.0 + 120.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 50.0 + 120.0, WINDOW_HEIGHT / 2.0 + 50.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 201.0, WINDOW_HEIGHT / 2.0 + 50.0)
+        ),
+        Direction::EastLeft => (
+            Point::new(WINDOW_WIDTH / 2.0 - 200.0, WINDOW_HEIGHT / 2.0 + 50.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 200.0 + 120.0, WINDOW_HEIGHT / 2.0 + 50.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 50.0, WINDOW_HEIGHT / 2.0 + 50.0 - 120.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 50.0, WINDOW_HEIGHT / 2.0 - 201.0)
+        ),
+        Direction::WestLeft => (
+            Point::new(WINDOW_WIDTH / 2.0 + 200.0, WINDOW_HEIGHT / 2.0 - 50.0),
+            Point::new(WINDOW_WIDTH / 2.0 + 200.0 - 120.0, WINDOW_HEIGHT / 2.0 - 50.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 50.0, WINDOW_HEIGHT / 2.0 - 50.0 + 120.0),
+            Point::new(WINDOW_WIDTH / 2.0 - 50.0, WINDOW_HEIGHT / 2.0 + 201.0)
+        ),
+           _ => (
+                Point::new(WINDOW_WIDTH / 2.0 + 100.0, WINDOW_HEIGHT),
+                Point::new(WINDOW_WIDTH / 2.0 + 100.0, WINDOW_HEIGHT / 2.0 + 100.0),
+                Point::new(WINDOW_WIDTH / 2.0 + 100.0, WINDOW_HEIGHT / 2.0 + 100.0),
+                Point::new(WINDOW_WIDTH / 2.0 + 100.0, WINDOW_HEIGHT / 2.0 + 100.0)
+            ),
     };
 
     // Create a cubic Bézier curve
@@ -230,15 +260,22 @@ pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Opti
         Direction::North => {
             available_directions.push(Direction::North);
             available_directions.push(Direction::NorthRight);
+            available_directions.push(Direction::NorthLeft);
         },
         Direction::East => {
             available_directions.push(Direction::East);
+            available_directions.push(Direction::EastRight);
+            available_directions.push(Direction::EastLeft);
         },
         Direction::South => {
             available_directions.push(Direction::South);
+            available_directions.push(Direction::SouthRight);
+            available_directions.push(Direction::SouthLeft);
         },
         Direction::West => {
             available_directions.push(Direction::West);
+            available_directions.push(Direction::WestRight);
+            available_directions.push(Direction::WestLeft);
         },
         _ => return None, // Invalid or unsupported direction
     }

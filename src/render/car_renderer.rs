@@ -51,10 +51,10 @@ pub fn draw_car(
         Direction::SouthRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress),
         Direction::EastRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI/2.0),
         Direction::WestRight => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI/2.0),
-        Direction::NorthLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI),
-        Direction::SouthLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress),
-        Direction::EastLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI/2.0),
-        Direction::WestLeft => transform.rot_rad(std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI/2.0),
+        Direction::NorthLeft => transform.rot_rad(- std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI),
+        Direction::SouthLeft => transform.rot_rad(- std::f64::consts::PI/2.0*car.turn_progress),
+        Direction::EastLeft => transform.rot_rad(- std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI/2.0),
+        Direction::WestLeft => transform.rot_rad(- std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI/2.0),
     };
 
     // Draw the car
@@ -134,7 +134,7 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
         Direction::NorthLeft => {
             if car.y > WINDOW_HEIGHT / 2 + 200 {
                 car.y -= speed;
-            } else if car.x < WINDOW_WIDTH / 2 + 200 {
+            } else if car.x < WINDOW_WIDTH / 2 - 200 {
                 car.x -= speed;
             } else {
                 perform_turn(car);
@@ -143,7 +143,7 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
         Direction::SouthLeft => {
             if car.y < WINDOW_HEIGHT / 2 - 200 {
                 car.y += speed;
-            } else if car.x > WINDOW_WIDTH / 2 - 200 {
+            } else if car.x > WINDOW_WIDTH / 2 + 200 {
                 car.x += speed;
             } else {
                 perform_turn(car);
@@ -153,7 +153,7 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
             if car.x < WINDOW_WIDTH / 2 - 200 {
                 car.x += speed;
             } else if car.y < WINDOW_HEIGHT / 2 - 200 {
-                car.y += speed;
+                car.y -= speed;
             } else {
                 perform_turn(car);
             }
@@ -162,7 +162,7 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
             if car.x > WINDOW_WIDTH / 2 + 200 {
                 car.x -= speed;
             } else if car.y > WINDOW_HEIGHT / 2 + 200 {
-                car.y -= speed;
+                car.y += speed;
             } else {
                 perform_turn(car);
             }
@@ -189,7 +189,14 @@ pub fn draw_whisker(
         Direction::South => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
         Direction::East => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
         Direction::West => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        _ => {}
+        Direction::NorthRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::SouthRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::EastRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::WestRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::NorthLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::SouthLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::EastLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
+        Direction::WestLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
     }
 }
 
