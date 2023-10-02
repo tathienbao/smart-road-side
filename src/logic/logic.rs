@@ -206,8 +206,7 @@ pub fn perform_turn(car: &mut Car) {
 }
 
 
-/// THIS SECTION IS FOR PRIORITY QUEUE LOGIC
-/// WE HAVE 4 FUNCTIONS.
+/// COLLISION DETECTION and SAFETY DISTANCE
 // For cars at slow speed
 pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
@@ -245,26 +244,119 @@ pub fn slow_down(car: &mut Car) {
     };
 }
 
+/// INSIDE INTERSECTION PRIORITY
 // For cars that enter the intersection
 pub fn insiders(cars: &mut VecDeque<Car>, insiders: &mut VecDeque<usize>) {
     // Check if a car has entered the intersection
     // If yes, mark it as `is_inside` and add it to `Insiders`
     for (idx, car) in cars.iter().enumerate() {
-        if in_intersection(car) {
+        if in_intersection(car) && !insiders.contains(&idx) {
             insiders.push_back(idx);
         }
     }
 }
 
 // Check conflict by directions
-pub fn check_conflict_by_direction(insiders: &VecDeque<usize>, cars: &VecDeque<Car>) {
-    // Check for conflicts in direction among the cars in `Insiders`
-    if insiders.len() < 2 {
-        false;
+use std::collections::HashSet;
+
+pub fn get_conflicting_directions(direction: Direction) -> HashSet<Direction> {
+    let mut conflicts = HashSet::new();
+
+    match direction {
+        Direction::NorthLeft => {
+            conflicts.insert(Direction::East);
+            conflicts.insert(Direction::WestLeft);
+            conflicts.insert(Direction::EastLeft);
+            conflicts.insert(Direction::South);
+        },
+        Direction::EastLeft => {
+            conflicts.insert(Direction::South);
+            conflicts.insert(Direction::NorthLeft);
+            conflicts.insert(Direction::SouthLeft);
+            conflicts.insert(Direction::West);
+        },
+        Direction::SouthLeft => {
+            conflicts.insert(Direction::West);
+            conflicts.insert(Direction::EastLeft);
+            conflicts.insert(Direction::WestLeft);
+            conflicts.insert(Direction::North);
+        },
+        Direction::WestLeft => {
+            conflicts.insert(Direction::North);
+            conflicts.insert(Direction::SouthLeft);
+            conflicts.insert(Direction::NorthLeft);
+            conflicts.insert(Direction::East);
+        },
+        Direction::North => {
+            conflicts.insert(Direction::East);
+            conflicts.insert(Direction::SouthLeft);
+            conflicts.insert(Direction::WestLeft);
+            conflicts.insert(Direction::West);
+        },
+        Direction::East => {
+            conflicts.insert(Direction::South);
+            conflicts.insert(Direction::WestLeft);
+            conflicts.insert(Direction::NorthLeft);
+            conflicts.insert(Direction::North);
+        },
+        Direction::South => {
+            conflicts.insert(Direction::West);
+            conflicts.insert(Direction::NorthLeft);
+            conflicts.insert(Direction::EastLeft);
+            conflicts.insert(Direction::East);
+        },
+        Direction::West => {
+            conflicts.insert(Direction::North);
+            conflicts.insert(Direction::EastLeft);
+            conflicts.insert(Direction::SouthLeft);
+            conflicts.insert(Direction::South);
+        },
+        _ => {}, // Handle unsupported or invalid directions
+    }
+
+    conflicts
+}
+
+pub fn check_conflict_by_direction(insiders: &VecDeque<usize>, cars: &mut VecDeque<Car>) {
+    let mut conflicts = Vec::new();
+
+    // Reset should_remain_stopped status for all vehicles
+    for car in cars.iter_mut() {
+        car.should_remain_stopped = false;
+    }
+
+    // Check for conflicts
+    for &insider_id in insiders.iter() {
+        let insider_direction = cars[insider_id].direction;
+        let conflicting_directions = get_conflicting_directions(insider_direction);
+
+        for &other_insider_id in insiders.iter() {
+            if insider_id >= other_insider_id {
+                continue;
+            }
+
+            if conflicting_directions.contains(&cars[other_insider_id].direction) {
+                conflicts.push((insider_id, other_insider_id));
+            }
+        }
+    }
+
+    // Resolve conflicts: The car with the higher idx has to stop.
+    for (_lower_idx, higher_idx) in conflicts {
+        cars[higher_idx].speed = CarSpeed::Stop;
+        cars[higher_idx].should_remain_stopped = true;
+    }
+
+    let insider_ids: HashSet<usize> = insiders.iter().cloned().collect();
+    for (idx, car) in cars.iter_mut().enumerate() {
+        if !insider_ids.contains(&idx) {
+            car.should_remain_stopped = false;
+        }
     }
 }
 
-/// Returns an available direction for spawning a new car, or None if no direction is available.
+
+/// SPAWNING SAFETY
 const SAFE_SPAWN_DISTANCE: i32 = 100;
 pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Option<Direction> {
     let mut available_directions: Vec<Direction> = vec![];
