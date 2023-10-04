@@ -15,13 +15,14 @@ pub struct Car {
     pub height: i32,
     pub stop_frames: u32,
     pub turn_progress: f64,
+    pub angle: f64,
 }
 
 impl Car {
     pub fn new(id: usize, x: i32, y: i32, direction: Direction, texture_id: usize) -> Self {
         let whisker = Whisker { x: 0, y: 0, dx: 0, dy: 0 };
         let hit_box = HitBox { x: 0.0, y: 0.0, width: 0.0, height: 0.0 };
-        Car {id, x, y, prev_x: x, prev_y: y, direction, texture_id, speed: CarSpeed::Default, whisker, hit_box, width: 37, height: 37, stop_frames: 0, turn_progress: 0.0}
+        Car {id, x, y, prev_x: x, prev_y: y, direction, texture_id, speed: CarSpeed::Default, whisker, hit_box, width: 37, height: 37, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
     }
 
     pub fn update_hit_box(&mut self) {

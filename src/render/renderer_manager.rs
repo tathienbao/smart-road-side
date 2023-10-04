@@ -4,7 +4,7 @@ use rand::Rng;
 use crate::direction::Direction;
 use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_right, draw_west_right, draw_north, draw_south, draw_east, draw_west, draw_north_left, draw_south_left, draw_east_left, draw_west_left};
 use crate::object::car::Car;
-use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box};
+use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box, update_angle};
 use crate::keyboard::handle_keyboard_event;
 use crate::logic::logic::{draw_intersection, draw_rectangle_edges, safe_spawning};
 
@@ -109,11 +109,7 @@ pub struct RendererManager {
                     if self.show_hit_box_and_whisker {
                         draw_whisker(car, c, g);
                         // HitBox
-                        draw_rectangle_edges(
-                            (car.hit_box.x as f32, car.hit_box.y as f32, car.hit_box.width as f32, car.hit_box.height as f32),
-                            c,
-                            g
-                        );
+                        draw_rectangle_edges((car.hit_box.x as f32, car.hit_box.y as f32, car.hit_box.width as f32, car.hit_box.height as f32), car.angle, c, g);
                     }
                 }
 
@@ -161,6 +157,7 @@ pub struct RendererManager {
             for car in &mut self.cars {
                     update_whisker(car);
                     update_hit_box(car);
+                    update_angle(car);
             }
         }
     }

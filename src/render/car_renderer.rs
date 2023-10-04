@@ -1,5 +1,5 @@
 use std::collections::VecDeque;
-use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow, line, Context, G2d, rectangle};
+use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWindow, line, Context, G2d};
 use std::fs;
 use crate::object::car::{Car, CarSpeed};
 use crate::object::direction::Direction;
@@ -7,7 +7,8 @@ use crate::logic::logic::{collision_detect, in_intersection, perform_turn, slow_
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
-const CAR_SIZE: f64 = 45.0;
+const CAR_WIDTH: f64 = 26.0;
+const CAR_HEIGHT: f64 = 47.0;
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
@@ -227,37 +228,61 @@ pub fn update_whisker(car: &mut Car) {
 }
 
 pub fn update_hit_box(car: &mut Car) {
+
     match car.direction{
         Direction::North => {
-            car.hit_box.x = car.x as f64 - CAR_SIZE;
-            car.hit_box.y = car.y as f64 - CAR_SIZE;
-            car.hit_box.width = CAR_SIZE;
-            car.hit_box.height = CAR_SIZE;
+            car.hit_box.x = car.x as f64 - CAR_WIDTH;
+            car.hit_box.y = car.y as f64 - CAR_HEIGHT;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
         }
         Direction::South => {
-            car.hit_box.x = car.x as f64;
-            car.hit_box.y = car.y as f64;
-            car.hit_box.width = CAR_SIZE;
-            car.hit_box.height = CAR_SIZE;
+            car.hit_box.x = car.x as f64 + CAR_WIDTH;
+            car.hit_box.y = car.y as f64 + CAR_HEIGHT;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
         }
         Direction::East => {
-            car.hit_box.x = car.x as f64;
-            car.hit_box.y = car.y as f64 - CAR_SIZE;
-            car.hit_box.width = CAR_SIZE;
-            car.hit_box.height = CAR_SIZE;
+            car.hit_box.x = car.x as f64 + CAR_HEIGHT;
+            car.hit_box.y = car.y as f64 - CAR_WIDTH;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
         }
         Direction::West => {
-            car.hit_box.x = car.x as f64 - CAR_SIZE;
+            car.hit_box.x = car.x as f64 - CAR_HEIGHT;
+            car.hit_box.y = car.y as f64 + CAR_WIDTH;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
+        }
+        Direction::NorthRight => {
+            car.hit_box.x = car.x as f64;
             car.hit_box.y = car.y as f64;
-            car.hit_box.width = CAR_SIZE;
-            car.hit_box.height = CAR_SIZE;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
         }
         _ => {
             car.hit_box.x = car.x as f64;
             car.hit_box.y = car.y as f64;
-            car.hit_box.width = CAR_SIZE;
-            car.hit_box.height = CAR_SIZE;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
         }
     }
+}
+
+pub fn update_angle(car: &mut Car) {
+    car.angle = match car.direction {
+        Direction::North => 0.0,
+        Direction::East  => std::f64::consts::PI / 2.0,
+        Direction::South => std::f64::consts::PI,
+        Direction::West  => 3.0 * std::f64::consts::PI / 2.0,
+        Direction::NorthRight => std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI,
+        Direction::SouthRight => std::f64::consts::PI/2.0*car.turn_progress,
+        Direction::EastRight => std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI/2.0,
+        Direction::WestRight => std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI/2.0,
+        Direction::NorthLeft => - std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI,
+        Direction::SouthLeft => - std::f64::consts::PI/2.0*car.turn_progress,
+        Direction::EastLeft => - std::f64::consts::PI/2.0*car.turn_progress - std::f64::consts::PI/2.0,
+        Direction::WestLeft => - std::f64::consts::PI/2.0*car.turn_progress + std::f64::consts::PI/2.0,
+    };
 }
 

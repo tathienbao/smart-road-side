@@ -40,7 +40,8 @@ pub fn draw_intersection(c: Context, g: &mut G2d) {
 
 /// HIT BOX AND WHISKER LOGIC
 ///
-// Define the hit box borders for a car
+
+// Check if a line intersects a rectangle
 fn line_intersects_rect(line_p1: (f32, f32), line_p2: (f32, f32), rect: (f32, f32, f32, f32)) -> bool {
     // Rectangle edges
     let (rect_x, rect_y, rect_w, rect_h) = rect;
@@ -86,16 +87,38 @@ fn line_line_intersection(a1: (f32, f32), a2: (f32, f32), b1: (f32, f32), b2: (f
     false
 }
 
-// Draw to display precision of the cut rectangular
-pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), c: Context, g: &mut G2d) {
+// Hàm để xoay một điểm quanh tâm (cx, cy) theo góc angle
+pub fn rotate_point(cx: f64, cy: f64, angle: f64, px: f64, py: f64) -> (f64, f64) {
+    let cos_angle = angle.cos();
+    let sin_angle = angle.sin();
+    let dx = px - cx;
+    let dy = py - cy;
+    let new_x = cx + dx * cos_angle - dy * sin_angle;
+    let new_y = cy + dx * sin_angle + dy * cos_angle;
+    (new_x, new_y)
+}
+
+// Draw to display precision of the hit box rectangular
+pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), angle: f64, c: Context, g: &mut G2d) {
     let (x, y, w, h) = rect;
 
-    // Create a vector of the rectangle's vertices
-    let vertices = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
+    // The center of the rectangle
+    let center_x = x;
+    let center_y = y;
+
+    // Vector of vertices
+    let mut vertices = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
+
+    // Rotate each vertex
+    for vertex in vertices.iter_mut() {
+        let (new_x, new_y) = rotate_point(center_x as f64, center_y as f64, angle, vertex.0 as f64, vertex.1 as f64);
+        vertex.0 = new_x as f32;
+        vertex.1 = new_y as f32;
+    }
 
     let yellow = [1.0, 1.0, 0.0, 1.0];
 
-    // Draw a line along the edges of the rectangle
+    // Vẽ đoạn thẳng dọc theo các cạnh của hình chữ nhật
     for i in 0..4 {
         let j = (i + 1) % 4;
         line(
@@ -250,16 +273,6 @@ pub fn slow_down(car: &mut Car) {
 }
 
 /// INSIDE INTERSECTION PRIORITY
-// For cars that enter the intersection
-// pub fn insiders(cars: &mut VecDeque<Car>, insiders: &mut VecDeque<usize>) {
-//     // Check if a car has entered the intersection
-//     // If yes, mark it as `is_inside` and add it to `Insiders`
-//     for (idx, car) in cars.iter().enumerate() {
-//         if in_intersection(car) && !insiders.contains(&idx) {
-//             insiders.push_back(idx);
-//         }
-//     }
-// }
 
 // Check conflict by directions
 use std::collections::HashSet;
@@ -321,54 +334,6 @@ pub fn get_conflicting_directions(direction: Direction) -> HashSet<Direction> {
 
     conflicts
 }
-
-// pub fn check_conflict_by_direction(insiders: &mut VecDeque<usize>, cars: &mut VecDeque<Car>) {
-//     let mut conflicts = Vec::new();
-//
-//     // Reset should_remain_stopped status for all vehicles
-//     for car in cars.iter_mut() {
-//         car.should_remain_stopped = false;
-//     }
-//
-//     // Check for conflicts
-//     for &insider_id in insiders.iter() {
-//         let insider_direction = cars[insider_id].direction;
-//         let conflicting_directions = get_conflicting_directions(insider_direction);
-//
-//         for &other_insider_id in insiders.iter() {
-//             if insider_id >= other_insider_id {
-//                 continue;
-//             }
-//
-//             if conflicting_directions.contains(&cars[other_insider_id].direction) {
-//                 conflicts.push((insider_id, other_insider_id));
-//             }
-//         }
-//     }
-//
-//     // Resolve conflicts: The car with the higher idx has to stop.
-//     for (lower_idx, higher_idx) in conflicts {
-//         cars[higher_idx].speed = CarSpeed::Stop;
-//         cars[higher_idx].should_remain_stopped = true;
-//         cars[lower_idx].should_remain_stopped = false;
-//     }
-//
-//     // Loop through cars and check if any car has moved out of the intersection
-//     let mut idx_to_remove = None;
-//     for &insider_idx in &*insiders {
-//         let car = &cars[insider_idx];
-//         if !in_intersection(car) {
-//             idx_to_remove = Some(insider_idx);
-//             break;
-//         }
-//     }
-//
-//     // if a car moves out of intersection, remove it from 'insiders'
-//     if let Some(idx) = idx_to_remove {
-//         insiders.retain(|&x| x != idx);
-//     }
-// }
-
 
 /// SPAWNING SAFETY
 const SAFE_SPAWN_DISTANCE: i32 = 100;
