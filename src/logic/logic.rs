@@ -52,6 +52,20 @@ pub fn draw_danger_zone(c: Context, g: &mut G2d) {
     );
 }
 
+// Check if a car is in the danger zone
+pub fn in_danger_zone(car: &Car) -> bool {
+    let x_center = WINDOW_WIDTH / 2.0;
+    let y_center = WINDOW_HEIGHT / 2.0;
+
+    let x_min = x_center - (DANGER_ZONE / 2.0);
+    let x_max = x_center + (DANGER_ZONE / 2.0);
+    let y_min = y_center - (DANGER_ZONE / 2.0);
+    let y_max = y_center + (DANGER_ZONE / 2.0);
+
+    (car.x as f64 >= x_min) && (car.x as f64 <= x_max) &&
+        (car.y as f64 >= y_min) && (car.y as f64 <= y_max)
+}
+
 
 /// HIT BOX AND WHISKER LOGIC
 // Check if a line intersects a rectangle
@@ -100,7 +114,7 @@ fn line_line_intersection(a1: (f32, f32), a2: (f32, f32), b1: (f32, f32), b2: (f
     false
 }
 
-// Hàm để xoay một điểm quanh tâm (cx, cy) theo góc angle
+// Rotate by center (cx, cy) with angle
 pub fn rotate_point(cx: f64, cy: f64, angle: f64, px: f64, py: f64) -> (f64, f64) {
     let cos_angle = angle.cos();
     let sin_angle = angle.sin();
@@ -111,7 +125,7 @@ pub fn rotate_point(cx: f64, cy: f64, angle: f64, px: f64, py: f64) -> (f64, f64
     (new_x, new_y)
 }
 
-// Draw to display precision of the hit box rectangular
+// Draw to display precision of the hit box rectangular with rotation
 pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), angle: f64, c: Context, g: &mut G2d) {
     let (x, y, w, h) = rect;
 
@@ -131,7 +145,7 @@ pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), angle: f64, c: Context, 
 
     let yellow = [1.0, 1.0, 0.0, 1.0];
 
-    // Vẽ đoạn thẳng dọc theo các cạnh của hình chữ nhật
+    // Draw each edge
     for i in 0..4 {
         let j = (i + 1) % 4;
         line(
@@ -151,6 +165,7 @@ use kurbo::{ParamCurve, Point};
 use crate::direction::Direction;
 use crate::object::car::CarSpeed;
 
+// Determine the direction of the car based on the turn progress
 pub fn perform_turn(car: &mut Car) {
     if car.turn_progress >= 1.0 {
         return; // Done turning
@@ -177,7 +192,7 @@ pub fn perform_turn(car: &mut Car) {
     // Rest of the code remains the same
     let t = car.turn_progress;
 
-    // Declare control points for cubic Bézier curve
+    // Declare control points for Cubic-Bézier curve
     let (p0, p1, p2, p3) = match car.direction {
         Direction::NorthRight => (
             Point::new(WINDOW_WIDTH / 2.0 + 150.0, WINDOW_HEIGHT / 2.0 + CURVE_RADIUS_RIGHT + 150.0),

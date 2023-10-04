@@ -8,7 +8,7 @@ use crate::logic::logic::{collision_detect, in_intersection, perform_turn, slow_
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
 const CAR_WIDTH: f64 = 26.0;
-const CAR_HEIGHT: f64 = 47.0;
+const CAR_HEIGHT: f64 = 49.0;
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
@@ -71,25 +71,28 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
 
     let car = &mut cars[current_car_id];
 
-
-
-    // Check and update the car's speed
+    // Nếu xe phát hiện va chạm
     if safe_flag {
-        slow_down(car);
-        if car.speed == CarSpeed::Stop {
-            car.stop_frames = 60;
+        // Nếu xe đang chạy nhanh, chuyển sang chạy chậm
+        if car.speed == CarSpeed::Default {
+            car.speed = CarSpeed::Slow;
         }
-    } else if in_intersection(car) {
-        if car.speed == CarSpeed::Stop && car.stop_frames == 10 {
-            if safe_flag {
-                // If the car is still in the intersection and there is no safe, stop the car for 60 frames
-                car.stop_frames = 60;
-            } else {
-                car.stop_frames = 10;
-            }
-        } else {car.speed = CarSpeed::Slow;}
-    } else {
-        car.speed = CarSpeed::Default;
+        // Nếu xe đang chạy chậm, dừng lại
+        else if car.speed == CarSpeed::Slow {
+            car.speed = CarSpeed::Stop;
+            car.stop_frames = 60; // Dừng lại trong 60 frames
+        }
+    }
+    // Nếu xe không phát hiện va chạm
+    else {
+        // Nếu xe đang ở trong giao lộ, chạy chậm
+        if in_intersection(car) {
+            car.speed = CarSpeed::Slow;
+        }
+        // Nếu xe đang ở ngoài giao lộ, chạy nhanh
+        else {
+            car.speed = CarSpeed::Default;
+        }
     }
 
 
