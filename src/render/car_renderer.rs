@@ -197,20 +197,7 @@ pub fn draw_whisker(
     let blue: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
     // A whisker start from the car's position and ends at the whisker's position
-    match car.direction {
-        Direction::North => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::South => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::East => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::West => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::NorthRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::SouthRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::EastRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::WestRight => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::NorthLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::SouthLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::EastLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-        Direction::WestLeft => line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g),
-    }
+    line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g);
 }
 
 pub fn update_whisker(car: &mut Car) {
