@@ -16,7 +16,6 @@ pub struct RendererManager {
         pub cars: VecDeque<Car>,
         pub textures: Vec<G2dTexture>,
         pub show_hit_box_and_whisker: bool,
-        insiders: VecDeque<usize>,
         pub glyphs: Glyphs,
     }
 
@@ -38,7 +37,6 @@ pub struct RendererManager {
             cars: VecDeque::new(),
             textures,
             show_hit_box_and_whisker: false,
-            insiders: VecDeque::new(),
             glyphs,
         }
     }
@@ -105,6 +103,11 @@ pub struct RendererManager {
                 draw_east_left(c, g);
                 draw_west_left(c, g);
 
+                for car in &self.cars {
+                    let ids: Vec<_> = self.cars.iter().map(|car| car.id).collect();
+                    println!("All Car IDs: {:?}", ids);
+                }
+
                 for car in &mut self.cars {
                     draw_car(car, &self.textures, c, g);
                     // Draw hit box and whisker if enabled
@@ -119,18 +122,17 @@ pub struct RendererManager {
                     }
                 }
 
-                // Draw insider indices
-                for &insider_id in &self.insiders {
-                    let car = &self.cars[insider_id];
+                // Draw car IDs
+                for car in &self.cars {
                     let transform = c.transform.trans(car.x as f64, car.y as f64);
 
-                    text::Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
-                        &insider_id.to_string(),
+                    Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
+                        &car.id.to_string(),
                         &mut self.glyphs,
                         &c.draw_state,
                         transform,
                         g
-                    ).unwrap();
+                    ).expect("Could not draw ID");
                 }
             });
 

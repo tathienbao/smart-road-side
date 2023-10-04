@@ -84,6 +84,8 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
             car.stop_frames = 60;
             if safe_flag {
                 car.should_remain_stopped = true;
+            } else {
+                car.should_remain_stopped = false;
             }
         }
     } else if in_intersection(car) {

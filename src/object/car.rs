@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use crate::direction::Direction;
 
 pub struct Car {
@@ -18,9 +17,6 @@ pub struct Car {
     pub should_remain_stopped: bool,
     pub(crate) turn_progress: f64
 }
-
-// VecDeque (global) to store cars
-pub static mut CARS: VecDeque<Car> = VecDeque::new();
 
 impl Car {
     pub fn new(id: usize, x: i32, y: i32, direction: Direction, texture_id: usize) -> Self {

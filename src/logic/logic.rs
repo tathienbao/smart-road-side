@@ -246,15 +246,15 @@ pub fn slow_down(car: &mut Car) {
 
 /// INSIDE INTERSECTION PRIORITY
 // For cars that enter the intersection
-pub fn insiders(cars: &mut VecDeque<Car>, insiders: &mut VecDeque<usize>) {
-    // Check if a car has entered the intersection
-    // If yes, mark it as `is_inside` and add it to `Insiders`
-    for (idx, car) in cars.iter().enumerate() {
-        if in_intersection(car) && !insiders.contains(&idx) {
-            insiders.push_back(idx);
-        }
-    }
-}
+// pub fn insiders(cars: &mut VecDeque<Car>, insiders: &mut VecDeque<usize>) {
+//     // Check if a car has entered the intersection
+//     // If yes, mark it as `is_inside` and add it to `Insiders`
+//     for (idx, car) in cars.iter().enumerate() {
+//         if in_intersection(car) && !insiders.contains(&idx) {
+//             insiders.push_back(idx);
+//         }
+//     }
+// }
 
 // Check conflict by directions
 use std::collections::HashSet;
@@ -317,43 +317,52 @@ pub fn get_conflicting_directions(direction: Direction) -> HashSet<Direction> {
     conflicts
 }
 
-pub fn check_conflict_by_direction(insiders: &VecDeque<usize>, cars: &mut VecDeque<Car>) {
-    let mut conflicts = Vec::new();
-
-    // Reset should_remain_stopped status for all vehicles
-    for car in cars.iter_mut() {
-        car.should_remain_stopped = false;
-    }
-
-    // Check for conflicts
-    for &insider_id in insiders.iter() {
-        let insider_direction = cars[insider_id].direction;
-        let conflicting_directions = get_conflicting_directions(insider_direction);
-
-        for &other_insider_id in insiders.iter() {
-            if insider_id >= other_insider_id {
-                continue;
-            }
-
-            if conflicting_directions.contains(&cars[other_insider_id].direction) {
-                conflicts.push((insider_id, other_insider_id));
-            }
-        }
-    }
-
-    // Resolve conflicts: The car with the higher idx has to stop.
-    for (_lower_idx, higher_idx) in conflicts {
-        cars[higher_idx].speed = CarSpeed::Stop;
-        cars[higher_idx].should_remain_stopped = true;
-    }
-
-    let insider_ids: HashSet<usize> = insiders.iter().cloned().collect();
-    for (idx, car) in cars.iter_mut().enumerate() {
-        if !insider_ids.contains(&idx) {
-            car.should_remain_stopped = false;
-        }
-    }
-}
+// pub fn check_conflict_by_direction(insiders: &mut VecDeque<usize>, cars: &mut VecDeque<Car>) {
+//     let mut conflicts = Vec::new();
+//
+//     // Reset should_remain_stopped status for all vehicles
+//     for car in cars.iter_mut() {
+//         car.should_remain_stopped = false;
+//     }
+//
+//     // Check for conflicts
+//     for &insider_id in insiders.iter() {
+//         let insider_direction = cars[insider_id].direction;
+//         let conflicting_directions = get_conflicting_directions(insider_direction);
+//
+//         for &other_insider_id in insiders.iter() {
+//             if insider_id >= other_insider_id {
+//                 continue;
+//             }
+//
+//             if conflicting_directions.contains(&cars[other_insider_id].direction) {
+//                 conflicts.push((insider_id, other_insider_id));
+//             }
+//         }
+//     }
+//
+//     // Resolve conflicts: The car with the higher idx has to stop.
+//     for (lower_idx, higher_idx) in conflicts {
+//         cars[higher_idx].speed = CarSpeed::Stop;
+//         cars[higher_idx].should_remain_stopped = true;
+//         cars[lower_idx].should_remain_stopped = false;
+//     }
+//
+//     // Loop through cars and check if any car has moved out of the intersection
+//     let mut idx_to_remove = None;
+//     for &insider_idx in &*insiders {
+//         let car = &cars[insider_idx];
+//         if !in_intersection(car) {
+//             idx_to_remove = Some(insider_idx);
+//             break;
+//         }
+//     }
+//
+//     // if a car moves out of intersection, remove it from 'insiders'
+//     if let Some(idx) = idx_to_remove {
+//         insiders.retain(|&x| x != idx);
+//     }
+// }
 
 
 /// SPAWNING SAFETY

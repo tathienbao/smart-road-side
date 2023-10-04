@@ -16,6 +16,5 @@ pub mod logic;
 
 pub use crate::render::direction_renderer;
 pub use object::car::Car;
-pub use object::car::CARS;
 pub use object::direction;
 pub use input::keyboard;
