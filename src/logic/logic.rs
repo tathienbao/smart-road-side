@@ -5,6 +5,7 @@ use piston_window::{rectangle, Context, G2d, line};
 const WINDOW_WIDTH: f64 = 1600.0;
 const WINDOW_HEIGHT: f64 = 1200.0;
 const INTERSECTION_SIZE: f64 = 400.0;
+const DANGER_ZONE: f64 = 201.0;
 const CURVE_RADIUS_RIGHT: f64 = 50.0;
 
 
@@ -23,7 +24,7 @@ pub fn in_intersection(car: &Car) -> bool {
         (car.y as f64 >= y_min) && (car.y as f64 <= y_max)
 }
 
-// Draw the intersection area for debugging purposes
+// Draw the intersection area
 pub fn draw_intersection(c: Context, g: &mut G2d) {
     let intersection_color = [0.2, 0.2, 0.2, 1.0]; // RGBA, green and semi-transparent
     let x_min = (WINDOW_WIDTH / 2.0 - INTERSECTION_SIZE / 2.0) as f64;
@@ -37,10 +38,22 @@ pub fn draw_intersection(c: Context, g: &mut G2d) {
     );
 }
 
+// Draw danger zone
+pub fn draw_danger_zone(c: Context, g: &mut G2d) {
+    let danger_zone_color = [0.4, 0.4, 0.4, 1.0]; // RGBA, red and semi-transparent
+    let x_min = (WINDOW_WIDTH / 2.0 - DANGER_ZONE / 2.0) as f64;
+    let y_min = (WINDOW_HEIGHT / 2.0 - DANGER_ZONE / 2.0) as f64;
+
+    rectangle(
+        danger_zone_color,
+        [x_min, y_min, DANGER_ZONE as f64, DANGER_ZONE as f64],
+        c.transform,
+        g,
+    );
+}
+
 
 /// HIT BOX AND WHISKER LOGIC
-///
-
 // Check if a line intersects a rectangle
 fn line_intersects_rect(line_p1: (f32, f32), line_p2: (f32, f32), rect: (f32, f32, f32, f32)) -> bool {
     // Rectangle edges

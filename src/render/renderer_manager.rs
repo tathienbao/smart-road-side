@@ -6,7 +6,7 @@ use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_ri
 use crate::object::car::Car;
 use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box, update_angle};
 use crate::keyboard::handle_keyboard_event;
-use crate::logic::logic::{draw_intersection, draw_rectangle_edges, safe_spawning};
+use crate::logic::logic::{draw_danger_zone, draw_intersection, draw_rectangle_edges, safe_spawning};
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
@@ -86,8 +86,9 @@ pub struct RendererManager {
             self.window.draw_2d(&event, |c, g, _| {
                 clear([0.0, 0.0, 0.0, 1.0], g);
 
-                //draw intersection zone 600x600
+                //draw intersection zone
                 draw_intersection(c, g);
+                draw_danger_zone(c, g);
 
                 //draw direction leading lines
                 draw_north_right(c, g);
