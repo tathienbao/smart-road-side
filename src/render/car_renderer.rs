@@ -192,19 +192,28 @@ pub fn draw_whisker(
     c: Context,
     g: &mut G2d,
 ) {
-    let car_x = car.x as f64;
-    let car_y = car.y as f64;
-    let whisker_x = car.whisker.x as f64;
-    let whisker_y = car.whisker.y as f64;
-
     let blue: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
-    // A whisker start from the car's position and ends at the whisker's position
-    line(blue, 1.0, [car_x, car_y, whisker_x, whisker_y], c.transform, g);
+    // Draw the first whisker
+    line(
+        blue,
+        1.0,
+        [car.x as f64, car.y as f64, car.whisker1.x as f64, car.whisker1.y as f64],
+        c.transform,
+        g,
+    );
+
+    // Draw the second whisker
+    line(
+        blue,
+        1.0,
+        [car.x as f64 + 10.0, car.y as f64 + 10.0, car.whisker2.x as f64, car.whisker2.y as f64],
+        c.transform,
+        g,
+    );
 }
 
 pub fn update_whisker(car: &mut Car) {
-    // Calculate dx and dy between the current position and the previous position
     let dx = car.x - car.prev_x;
     let dy = car.y - car.prev_y;
 
@@ -212,10 +221,16 @@ pub fn update_whisker(car: &mut Car) {
     car.prev_x = car.x;
     car.prev_y = car.y;
 
-    // Update the whisker's position based on dx and dy
-    car.whisker.x = car.x + dx * 50;  // Use 50 as the length of the whisker
-    car.whisker.y = car.y + dy * 50;
+    // Update the first whisker's position
+    car.whisker1.x = car.x + dx * 50;  // Use 50 as the length of the whisker
+    car.whisker1.y = car.y + dy * 50;
+
+    // Update the second whisker's position
+    // Assuming the second whisker's origin is offset by 10 units in x and y direction
+    car.whisker2.x = (car.x + 10) + dx * 50;
+    car.whisker2.y = (car.y + 10) + dy * 50;
 }
+
 
 pub fn update_hit_box(car: &mut Car) {
 

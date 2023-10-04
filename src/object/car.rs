@@ -9,7 +9,8 @@ pub struct Car {
     pub direction: Direction,
     pub texture_id: usize,
     pub speed: CarSpeed,
-    pub whisker: Whisker,
+    pub whisker1: Whisker,
+    pub whisker2: Whisker,
     pub hit_box: HitBox,
     pub width: i32,
     pub height: i32,
@@ -20,9 +21,18 @@ pub struct Car {
 
 impl Car {
     pub fn new(id: usize, x: i32, y: i32, direction: Direction, texture_id: usize) -> Self {
-        let whisker = Whisker { x: 0, y: 0, dx: 0, dy: 0 };
         let hit_box = HitBox { x: 0.0, y: 0.0, width: 0.0, height: 0.0 };
-        Car {id, x, y, prev_x: x, prev_y: y, direction, texture_id, speed: CarSpeed::Default, whisker, hit_box, width: 37, height: 37, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
+        Car {id, x, y, prev_x: x, prev_y: y, direction, texture_id, speed: CarSpeed::Default, whisker1: Whisker {
+            x,
+            y,
+            dx: 0,
+            dy: 0,
+        }, whisker2: Whisker {
+            x,
+            y,
+            dx: 0,
+            dy: 0,
+        }, hit_box, width: 37, height: 37, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
     }
 
     pub fn update_hit_box(&mut self) {
@@ -48,8 +58,8 @@ pub struct Whisker {
 }
 
 pub struct HitBox {
-    pub(crate) x: f64,  // X-coordinate of the top-left corner
-    pub(crate) y: f64,  // Y-coordinate of the top-left corner
-    pub(crate) width: f64,  // Width of the hit box
-    pub(crate) height: f64,  // Height of the hit box
+    pub x: f64,  // X-coordinate of the top-left corner
+    pub y: f64,  // Y-coordinate of the top-left corner
+    pub width: f64,  // Width of the hit box
+    pub height: f64,  // Height of the hit box
 }

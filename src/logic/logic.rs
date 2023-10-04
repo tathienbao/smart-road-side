@@ -266,8 +266,10 @@ pub fn perform_turn(car: &mut Car) {
 // For cars at slow speed
 pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
-    let current_whisker_start = (current_car.x as f32, current_car.y as f32);
-    let current_whisker_end = (current_car.whisker.x as f32, current_car.whisker.y as f32);
+    let current_whisker_start1 = (current_car.x as f32, current_car.y as f32);
+    let current_whisker_start2 = (current_car.x as f32 + 10.0, current_car.y as f32 + 10.0);
+    let current_whisker_end1 = (current_car.whisker1.x as f32, current_car.whisker1.y as f32);
+    let current_whisker_end2 = (current_car.whisker2.x as f32, current_car.whisker2.y as f32);
 
     for (other_car_id, other_car) in cars.iter().enumerate() {
         if current_car_id == other_car_id {
@@ -282,7 +284,10 @@ pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
             other_hit_box.height as f32,
         );
 
-        if line_intersects_rect(current_whisker_start, current_whisker_end, rect) {
+        if line_intersects_rect(current_whisker_start1, current_whisker_end1, rect) {
+            return true;
+        }
+        if line_intersects_rect(current_whisker_start2, current_whisker_end2, rect) {
             return true;
         }
     }
