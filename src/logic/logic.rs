@@ -128,7 +128,12 @@ pub fn perform_turn(car: &mut Car) {
     };
 
     // Increment turn progress based on the calculated rate
-    car.turn_progress += turn_rate;
+    if car.speed == CarSpeed::Stop {
+        car.turn_progress += 0.0;
+    } else {
+        car.turn_progress += turn_rate;
+    }
+
     if car.turn_progress > 1.0 {
         car.turn_progress = 1.0;
     }

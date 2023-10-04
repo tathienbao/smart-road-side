@@ -9,7 +9,7 @@ rand = { version = "0.8.5", features = [] }
 piston_window = "0.130.0"
 piston-gfx_texture = "0.44.0"
 image = { version = "0.24.7", features = [] }
-kurbo = "0.9.5"
+kurbo = "0.10.2"
 
 
 

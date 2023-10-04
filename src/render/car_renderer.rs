@@ -7,8 +7,7 @@ use crate::logic::logic::{collision_detect, in_intersection, perform_turn, slow_
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
-const CAR_WIDTH: f64 = 37.0;
-const CAR_HEIGHT: f64 = 70.0;
+const CAR_SIZE: f64 = 45.0;
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
@@ -58,7 +57,7 @@ pub fn draw_car(
     };
 
     // Draw the car
-    piston_window::image(texture, rotated_transform.scale(0.5, 0.5), g);
+    piston_window::image(texture, rotated_transform.scale(0.36, 0.36), g);
 }
 
 pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
@@ -67,32 +66,31 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
     car.prev_x = car.x;
     car.prev_y = car.y;
 
-    // Apply should remain stopped even if the car is not in the intersection
-    if car.should_remain_stopped {
-        car.speed = CarSpeed::Stop;
-        car.stop_frames = 60;
-        return;
-    }
-
     let safe_flag = collision_detect(cars, current_car_id);
 
     let car = &mut cars[current_car_id];
 
+
+
+    // Check and update the car's speed
     if safe_flag {
         slow_down(car);
         if car.speed == CarSpeed::Stop {
             car.stop_frames = 60;
-            if safe_flag {
-                car.should_remain_stopped = true;
-            } else {
-                car.should_remain_stopped = false;
-            }
         }
     } else if in_intersection(car) {
-        car.speed = CarSpeed::Slow;
+        if car.speed == CarSpeed::Stop && car.stop_frames == 10 {
+            if safe_flag {
+                // If the car is still in the intersection and there is no safe, stop the car for 60 frames
+                car.stop_frames = 60;
+            } else {
+                car.stop_frames = 10;
+            }
+        } else {car.speed = CarSpeed::Slow;}
     } else {
         car.speed = CarSpeed::Default;
     }
+
 
     let speed = car.speed as i32;
 
@@ -228,47 +226,37 @@ pub fn update_whisker(car: &mut Car) {
     car.whisker.y = car.y + dy * 50;
 }
 
-pub fn draw_hit_box(car: &Car, c: Context, g: &mut G2d) {
-    let red: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
-            rectangle(
-                red,
-                [car.hit_box.x, car.hit_box.y, car.hit_box.width, car.hit_box.height],
-                c.transform,
-                g,
-            );
-}
-
 pub fn update_hit_box(car: &mut Car) {
     match car.direction{
         Direction::North => {
-            car.hit_box.x = car.x as f64 - CAR_WIDTH;
-            car.hit_box.y = car.y as f64 - CAR_HEIGHT;
-            car.hit_box.width = CAR_WIDTH;
-            car.hit_box.height = CAR_HEIGHT;
+            car.hit_box.x = car.x as f64 - CAR_SIZE;
+            car.hit_box.y = car.y as f64 - CAR_SIZE;
+            car.hit_box.width = CAR_SIZE;
+            car.hit_box.height = CAR_SIZE;
         }
         Direction::South => {
             car.hit_box.x = car.x as f64;
             car.hit_box.y = car.y as f64;
-            car.hit_box.width = CAR_WIDTH;
-            car.hit_box.height = CAR_HEIGHT;
+            car.hit_box.width = CAR_SIZE;
+            car.hit_box.height = CAR_SIZE;
         }
         Direction::East => {
             car.hit_box.x = car.x as f64;
-            car.hit_box.y = car.y as f64 - CAR_WIDTH;
-            car.hit_box.width = CAR_HEIGHT;
-            car.hit_box.height = CAR_WIDTH;
+            car.hit_box.y = car.y as f64 - CAR_SIZE;
+            car.hit_box.width = CAR_SIZE;
+            car.hit_box.height = CAR_SIZE;
         }
         Direction::West => {
-            car.hit_box.x = car.x as f64 - CAR_HEIGHT;
+            car.hit_box.x = car.x as f64 - CAR_SIZE;
             car.hit_box.y = car.y as f64;
-            car.hit_box.width = CAR_HEIGHT;
-            car.hit_box.height = CAR_WIDTH;
+            car.hit_box.width = CAR_SIZE;
+            car.hit_box.height = CAR_SIZE;
         }
         _ => {
             car.hit_box.x = car.x as f64;
             car.hit_box.y = car.y as f64;
-            car.hit_box.width = CAR_WIDTH;
-            car.hit_box.height = CAR_WIDTH;
+            car.hit_box.width = CAR_SIZE;
+            car.hit_box.height = CAR_SIZE;
         }
     }
 }

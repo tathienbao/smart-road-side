@@ -103,11 +103,6 @@ pub struct RendererManager {
                 draw_east_left(c, g);
                 draw_west_left(c, g);
 
-                for car in &self.cars {
-                    let ids: Vec<_> = self.cars.iter().map(|car| car.id).collect();
-                    println!("All Car IDs: {:?}", ids);
-                }
-
                 for car in &mut self.cars {
                     draw_car(car, &self.textures, c, g);
                     // Draw hit box and whisker if enabled
@@ -121,6 +116,15 @@ pub struct RendererManager {
                         );
                     }
                 }
+
+                // Hardcoding example
+                text::Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
+                    &"Test ID".to_string(),
+                    &mut self.glyphs,
+                    &c.draw_state,
+                    c.transform.trans(50.0, 50.0),
+                    g
+                ).unwrap();
 
                 // Draw car IDs
                 for car in &self.cars {
