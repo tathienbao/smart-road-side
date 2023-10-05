@@ -4,6 +4,8 @@ pub struct Car {
     pub id: usize,
     pub x: i32,
     pub y: i32,
+    pub x2: i32,
+    pub y2: i32,
     pub prev_x: i32,
     pub prev_y: i32,
     pub direction: Direction,
@@ -22,7 +24,10 @@ pub struct Car {
 impl Car {
     pub fn new(id: usize, x: i32, y: i32, direction: Direction, texture_id: usize) -> Self {
         let hit_box = HitBox { x: 0.0, y: 0.0, width: 0.0, height: 0.0 };
-        Car {id, x, y, prev_x: x, prev_y: y, direction, texture_id, speed: CarSpeed::Default, whisker1: Whisker {
+        Car {id, x, y,
+            x2: 0,
+            y2: 0,
+            prev_x: x, prev_y: y, direction, texture_id, speed: CarSpeed::Default, whisker1: Whisker {
             x,
             y,
             dx: 0,
@@ -32,7 +37,7 @@ impl Car {
             y,
             dx: 0,
             dy: 0,
-        }, hit_box, width: 37, height: 37, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
+        }, hit_box, width: 26, height: 60, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
     }
 
     pub fn update_hit_box(&mut self) {

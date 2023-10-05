@@ -3,12 +3,12 @@ use piston_window::{Texture, G2dTexture, Transformed, TextureSettings, PistonWin
 use std::fs;
 use crate::object::car::{Car, CarSpeed};
 use crate::object::direction::Direction;
-use crate::logic::logic::{collision_detect, in_intersection, perform_turn, slow_down};
+use crate::logic::logic::{collision_detect, in_intersection, make_second_point, perform_turn, slow_down};
 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
-const CAR_WIDTH: f64 = 26.0;
-const CAR_HEIGHT: f64 = 49.0;
+pub const CAR_WIDTH: f64 = 26.0;
+const CAR_HEIGHT: f64 = 60.0;
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();
@@ -71,30 +71,21 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
 
     let car = &mut cars[current_car_id];
 
-    // Nếu xe phát hiện va chạm
+    // safety distance
     if safe_flag {
-        // Nếu xe đang chạy nhanh, chuyển sang chạy chậm
-        if car.speed == CarSpeed::Default {
-            car.speed = CarSpeed::Slow;
+        slow_down(car);
+        if car.speed == CarSpeed::Stop {
+            car.stop_frames = 60;
         }
-        // Nếu xe đang chạy chậm, dừng lại
-        else if car.speed == CarSpeed::Slow {
+    } else if in_intersection(car) {
+        if safe_flag {
             car.speed = CarSpeed::Stop;
-            car.stop_frames = 60; // Dừng lại trong 60 frames
-        }
-    }
-    // Nếu xe không phát hiện va chạm
-    else {
-        // Nếu xe đang ở trong giao lộ, chạy chậm
-        if in_intersection(car) {
+        } else {
             car.speed = CarSpeed::Slow;
         }
-        // Nếu xe đang ở ngoài giao lộ, chạy nhanh
-        else {
-            car.speed = CarSpeed::Default;
-        }
+    } else {
+        car.speed = CarSpeed::Default;
     }
-
 
     let speed = car.speed as i32;
 
@@ -186,6 +177,24 @@ pub fn update_car_position(cars: &mut VecDeque<Car>, current_car_id: usize) {
     }
 }
 
+pub fn update_second_point(car: &mut Car, angle: f64, width: i32) {
+    let (new_x, new_y) = match car.direction {
+        Direction::North => make_second_point((car.x, car.y), angle, -width),
+        Direction::South => make_second_point((car.x, car.y), angle, -width),
+        Direction::East => make_second_point((car.x, car.y), angle, -width),
+        Direction::West => make_second_point((car.x, car.y), angle, -width),
+        Direction::NorthRight => make_second_point((car.x, car.y), angle, width),
+        Direction::SouthRight => make_second_point((car.x, car.y), angle, width),
+        Direction::EastRight => make_second_point((car.x, car.y), angle, width),
+        Direction::WestRight => make_second_point((car.x, car.y), angle, width),
+        Direction::NorthLeft => make_second_point((car.x, car.y), angle, width),
+        Direction::SouthLeft => make_second_point((car.x, car.y), angle, width),
+        Direction::EastLeft => make_second_point((car.x, car.y), angle, width),
+        Direction::WestLeft => make_second_point((car.x, car.y), angle, width),
+    };
+    car.x2 = new_x;
+    car.y2 = new_y;
+}
 
 pub fn draw_whisker(
     car: &Car,
@@ -207,7 +216,7 @@ pub fn draw_whisker(
     line(
         blue,
         1.0,
-        [car.x as f64 + 10.0, car.y as f64 + 10.0, car.whisker2.x as f64, car.whisker2.y as f64],
+        [car.x2 as f64, car.y2 as f64, car.whisker2.x as f64, car.whisker2.y as f64],
         c.transform,
         g,
     );
@@ -227,14 +236,13 @@ pub fn update_whisker(car: &mut Car) {
 
     // Update the second whisker's position
     // Assuming the second whisker's origin is offset by 10 units in x and y direction
-    car.whisker2.x = (car.x + 10) + dx * 50;
-    car.whisker2.y = (car.y + 10) + dy * 50;
+    car.whisker2.x = car.x2 + dx * 50;
+    car.whisker2.y = car.y2 + dy * 50;
 }
 
 
 pub fn update_hit_box(car: &mut Car) {
-
-    match car.direction{
+    match car.direction {
         Direction::North => {
             car.hit_box.x = car.x as f64 - CAR_WIDTH;
             car.hit_box.y = car.y as f64 - CAR_HEIGHT;
@@ -265,7 +273,43 @@ pub fn update_hit_box(car: &mut Car) {
             car.hit_box.width = CAR_WIDTH;
             car.hit_box.height = CAR_HEIGHT;
         }
-        _ => {
+        Direction::SouthRight => {
+            car.hit_box.x = car.x as f64;
+            car.hit_box.y = car.y as f64;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
+        }
+        Direction::EastRight => {
+            car.hit_box.x = car.x as f64;
+            car.hit_box.y = car.y as f64;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
+        }
+        Direction::WestRight => {
+            car.hit_box.x = car.x as f64;
+            car.hit_box.y = car.y as f64;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
+        }
+        Direction::NorthLeft => {
+            car.hit_box.x = car.x as f64;
+            car.hit_box.y = car.y as f64;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
+        }
+        Direction::SouthLeft => {
+            car.hit_box.x = car.x as f64;
+            car.hit_box.y = car.y as f64;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
+        }
+        Direction::EastLeft => {
+            car.hit_box.x = car.x as f64;
+            car.hit_box.y = car.y as f64;
+            car.hit_box.width = CAR_WIDTH;
+            car.hit_box.height = CAR_HEIGHT;
+        }
+        Direction::WestLeft => {
             car.hit_box.x = car.x as f64;
             car.hit_box.y = car.y as f64;
             car.hit_box.width = CAR_WIDTH;

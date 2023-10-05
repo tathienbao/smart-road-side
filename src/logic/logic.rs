@@ -129,7 +129,7 @@ pub fn rotate_point(cx: f64, cy: f64, angle: f64, px: f64, py: f64) -> (f64, f64
 pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), angle: f64, c: Context, g: &mut G2d) {
     let (x, y, w, h) = rect;
 
-    // The center of the rectangle
+    // The center of rotation
     let center_x = x;
     let center_y = y;
 
@@ -159,7 +159,6 @@ pub fn draw_rectangle_edges(rect: (f32, f32, f32, f32), angle: f64, c: Context, 
 }
 
 /// TURNING CAR LOGIC
-///
 // Update the car's position based on Bezier curve
 use kurbo::{ParamCurve, Point};
 use crate::direction::Direction;
@@ -262,12 +261,13 @@ pub fn perform_turn(car: &mut Car) {
 }
 
 
-/// COLLISION DETECTION and SAFETY DISTANCE
+/// COLLISION DETECTION and SAFETY HANDLING
 // For cars at slow speed
 pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
+
     let current_whisker_start1 = (current_car.x as f32, current_car.y as f32);
-    let current_whisker_start2 = (current_car.x as f32 + 10.0, current_car.y as f32 + 10.0);
+    let current_whisker_start2 = (current_car.x2 as f32, current_car.y2 as f32);
     let current_whisker_end1 = (current_car.whisker1.x as f32, current_car.whisker1.y as f32);
     let current_whisker_end2 = (current_car.whisker2.x as f32, current_car.whisker2.y as f32);
 
@@ -284,10 +284,7 @@ pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
             other_hit_box.height as f32,
         );
 
-        if line_intersects_rect(current_whisker_start1, current_whisker_end1, rect) {
-            return true;
-        }
-        if line_intersects_rect(current_whisker_start2, current_whisker_end2, rect) {
+        if line_intersects_rect(current_whisker_start1, current_whisker_end1, rect) || line_intersects_rect(current_whisker_start2, current_whisker_end2, rect){
             return true;
         }
     }
@@ -295,7 +292,17 @@ pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     false
 }
 
-// For cars at high speed
+// Make second point based on car(x,y) and rotate following car's angle (to generate the 2nd whisker later)
+pub fn make_second_point (point: (i32,i32), angle: f64, width: i32) -> (i32, i32) {
+    let (x,y) = point;
+    let w: i32 = width;
+
+    // Rotate the point by the angle
+    let (x2,y2) = rotate_point(x as f64, y as f64, angle, (x+w) as f64, (y) as f64);
+    (x2 as i32, y2 as i32)
+}
+
+// For cars at higher speed
 pub fn slow_down(car: &mut Car) {
     // Reduce the speed of the car to a safer level
     car.speed = match car.speed {
@@ -369,7 +376,7 @@ pub fn get_conflicting_directions(direction: Direction) -> HashSet<Direction> {
 }
 
 /// SPAWNING SAFETY
-const SAFE_SPAWN_DISTANCE: i32 = 100;
+const SAFE_SPAWN_DISTANCE: i32 = 150;
 pub fn safe_spawning(cars: &VecDeque<Car>, desired_direction: Direction) -> Option<Direction> {
     let mut available_directions: Vec<Direction> = vec![];
 

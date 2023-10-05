@@ -4,7 +4,7 @@ use rand::Rng;
 use crate::direction::Direction;
 use crate::direction_renderer::{draw_north_right, draw_east_right, draw_south_right, draw_west_right, draw_north, draw_south, draw_east, draw_west, draw_north_left, draw_south_left, draw_east_left, draw_west_left};
 use crate::object::car::Car;
-use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box, update_angle};
+use crate::render::car_renderer::{draw_car, update_car_position, load_all_textures, draw_whisker, update_whisker, update_hit_box, update_angle, update_second_point};
 use crate::keyboard::handle_keyboard_event;
 use crate::logic::logic::{draw_danger_zone, draw_intersection, draw_rectangle_edges, safe_spawning};
 
@@ -114,26 +114,25 @@ pub struct RendererManager {
                     }
                 }
 
-                // Hardcoding example
-                text::Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
-                    &"Test ID".to_string(),
-                    &mut self.glyphs,
-                    &c.draw_state,
-                    c.transform.trans(50.0, 50.0),
-                    g
-                ).unwrap();
-
                 // Draw car IDs
                 for car in &self.cars {
-                    let transform = c.transform.trans(car.x as f64, car.y as f64);
+                    c.transform.trans(car.x as f64, car.y as f64);
 
+                    // Harding example
                     Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
-                        &car.id.to_string(),
+                        &"Test ID".to_string(),
                         &mut self.glyphs,
                         &c.draw_state,
-                        transform,
+                        c.transform.trans(50.0, 50.0),
                         g
-                    ).expect("Could not draw ID");
+                    ).unwrap();
+                    // Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
+                    //     &car.id.to_string(),
+                    //     &mut self.glyphs,
+                    //     &c.draw_state,
+                    //     transform,
+                    //     g
+                    // ).expect("Could not draw ID");
                 }
             });
 
@@ -156,9 +155,10 @@ pub struct RendererManager {
 
             // Update and draw hit boxes and whiskers
             for car in &mut self.cars {
-                    update_whisker(car);
-                    update_hit_box(car);
-                    update_angle(car);
+                update_second_point(car, car.angle, car.width);
+                update_whisker(car);
+                update_hit_box(car);
+                update_angle(car);
             }
         }
     }
