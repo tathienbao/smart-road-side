@@ -8,7 +8,7 @@ use crate::logic::logic::{collision_detect, in_intersection, make_second_point, 
 const WINDOW_WIDTH: i32 = 1600;
 const WINDOW_HEIGHT: i32 = 1200;
 pub const CAR_WIDTH: f64 = 26.0;
-pub const CAR_HEIGHT: f64 = 60.0;
+const CAR_HEIGHT: f64 = 60.0;
 
 pub fn load_all_textures(window: &mut PistonWindow) -> Vec<G2dTexture> {
     let mut textures = Vec::new();

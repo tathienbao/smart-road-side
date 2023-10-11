@@ -1,5 +1,4 @@
 use crate::direction::Direction;
-use crate::logic::logic::calculate_rectangle_vertices;
 
 pub struct Car {
     pub id: usize,
@@ -15,7 +14,6 @@ pub struct Car {
     pub whisker1: Whisker,
     pub whisker2: Whisker,
     pub hit_box: HitBox,
-    pub hit_box_vertices: [(f32, f32); 4],
     pub width: i32,
     pub height: i32,
     pub stop_frames: u32,
@@ -25,7 +23,7 @@ pub struct Car {
 
 impl Car {
     pub fn new(id: usize, x: i32, y: i32, direction: Direction, texture_id: usize) -> Self {
-        let hit_box = HitBox { x: 0.0, y: 0.0, width: 26.0, height: 60.0 };
+        let hit_box = HitBox { x: 0.0, y: 0.0, width: 0.0, height: 0.0 };
         Car {id, x, y,
             x2: 0,
             y2: 0,
@@ -39,13 +37,14 @@ impl Car {
             y,
             dx: 0,
             dy: 0,
-        }, hit_box,
-            hit_box_vertices: [(0.0, 0.0); 4],
-            width: 26, height: 60, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
+        }, hit_box, width: 26, height: 60, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
     }
 
-    pub fn update_hit_box_vertices(&mut self) {
-        self.hit_box_vertices = calculate_rectangle_vertices(self.hit_box_vertices, self.angle);
+    pub fn update_hit_box(&mut self) {
+        self.hit_box.x = self.x as f64;
+        self.hit_box.y = self.y as f64;
+        self.hit_box.width = self.width as f64;
+        self.hit_box.height = self.height as f64;
     }
 }
 

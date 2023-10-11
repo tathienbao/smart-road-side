@@ -263,46 +263,33 @@ pub fn perform_turn(car: &mut Car) {
 
 /// COLLISION DETECTION and SAFETY HANDLING
 // For cars at slow speed
-pub fn collision_detect(cars: &[Car], current_car_id: usize) -> bool {
+pub fn collision_detect(cars: &VecDeque<Car>, current_car_id: usize) -> bool {
     let current_car = &cars[current_car_id];
-    let current_whisker_start = current_car.whisker_start;  // Replace with actual whisker start point
-    let current_whisker_end = current_car.whisker_end;  // Replace with actual whisker end point
 
-    // Calculate the vertices for the hit box of the current car
-    let current_rect = calculate_rectangle_vertices(current_car);
+    let current_whisker_start1 = (current_car.x as f32, current_car.y as f32);
+    let current_whisker_start2 = (current_car.x2 as f32, current_car.y2 as f32);
+    let current_whisker_end1 = (current_car.whisker1.x as f32, current_car.whisker1.y as f32);
+    let current_whisker_end2 = (current_car.whisker2.x as f32, current_car.whisker2.y as f32);
 
     for (other_car_id, other_car) in cars.iter().enumerate() {
-        if other_car_id == current_car_id {
+        if current_car_id == other_car_id {
             continue;
         }
 
-        // Calculate the vertices for the hit box of the other car
-        let other_rect = calculate_rectangle_vertices(other_car);
+        let other_hit_box = &other_car.hit_box;
+        let rect = (
+            other_hit_box.x as f32,
+            other_hit_box.y as f32,
+            other_hit_box.width as f32,
+            other_hit_box.height as f32,
+        );
 
-        // Check for collision
-        if line_intersects_rect(current_whisker_start, current_whisker_end, other_rect) {
+        if line_intersects_rect(current_whisker_start1, current_whisker_end1, rect) || line_intersects_rect(current_whisker_start2, current_whisker_end2, rect){
             return true;
         }
     }
 
     false
-}
-
-
-pub fn calculate_rectangle_vertices(rect: (f32, f32, f32, f32), angle: f64) -> [(f32, f32); 4] {
-    let (x, y, w, h) = rect;
-    let center_x = x;
-    let center_y = y;
-
-    let mut vertices = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)];
-
-    for vertex in vertices.iter_mut() {
-        let (new_x, new_y) = rotate_point(center_x as f64, center_y as f64, angle, vertex.0 as f64, vertex.1 as f64);
-        vertex.0 = new_x as f32;
-        vertex.1 = new_y as f32;
-    }
-
-    vertices
 }
 
 // Make second point based on car(x,y) and rotate following car's angle (to generate the 2nd whisker later)
