@@ -39,13 +39,6 @@ impl Car {
             dy: 0,
         }, hit_box, width: 26, height: 60, stop_frames: 0, turn_progress: 0.0, angle: 0.0 }
     }
-
-    pub fn update_hit_box(&mut self) {
-        self.hit_box.x = self.x as f64;
-        self.hit_box.y = self.y as f64;
-        self.hit_box.width = self.width as f64;
-        self.hit_box.height = self.height as f64;
-    }
 }
 
 #[derive(Copy, Clone, PartialEq)]

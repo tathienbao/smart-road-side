@@ -118,14 +118,14 @@ pub struct RendererManager {
                 for car in &self.cars {
                     c.transform.trans(car.x as f64, car.y as f64);
 
-                    // Harding example
-                    Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
-                        &"Test ID".to_string(),
-                        &mut self.glyphs,
-                        &c.draw_state,
-                        c.transform.trans(50.0, 50.0),
-                        g
-                    ).unwrap();
+                    // // Harding example
+                    // Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
+                    //     &"Test ID".to_string(),
+                    //     &mut self.glyphs,
+                    //     &c.draw_state,
+                    //     c.transform.trans(50.0, 50.0),
+                    //     g
+                    // ).unwrap();
                     // Text::new_color([1.0, 1.0, 1.0, 1.0], 16).draw(
                     //     &car.id.to_string(),
                     //     &mut self.glyphs,
